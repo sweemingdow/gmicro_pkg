@@ -9,7 +9,7 @@
 .idea/
 
 *.socket
-
+.nacos/
 *.db
 *.sqlite
 

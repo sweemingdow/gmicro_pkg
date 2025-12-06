@@ -9,8 +9,8 @@ nacos-config:
   username: test_a
   password: test_
   log-level: debug
-  log-dir: ./nacos/log
-  cache-dir: ./nacos/cache
+  log-dir: ./.nacos/log
+  cache-dir: ./.nacos/cache
 
 nacos-center-config:
   # 配置中心
