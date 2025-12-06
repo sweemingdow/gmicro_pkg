@@ -1,0 +1,42 @@
+app-config:
+  app-name: three_service
+  profile: dev
+  graceful-exit-timeout-mills: 10000
+
+nacos-config:
+  namespace-id: 0101d8c1-34e7-469e-bdaa-3f6b090e1f85
+  addresses: 192.168.1.155:8848
+  username: test_a
+  password: test_
+  log-level: debug
+  log-dir: ./nacos/log
+  cache-dir: ./nacos/cache
+
+nacos-center-config:
+  # 配置中心
+  config:
+
+  # 注册/发现中心
+  registry-discover:
+    cluster-name: ""
+    group-name: GM_SRV
+    discover-dial-timeout-mills: 2000
+
+log-config:
+  level: debug
+  file-log-config:
+    file-path: ./logs
+    max-file-size: 10
+    max-backup: 3
+    history-days: 7
+    compress: true
+  remote-log-config:
+    host: 192.168.1.155
+    port: 5171
+    reconnect-max-delay-mills: 30000
+    queue-size: 200
+    stop-timeout-mills: 5000
+    must-connected-in-init: true
+    batch-timing-mills: 100
+    batch-quantitative-size: 100
+    debug: false

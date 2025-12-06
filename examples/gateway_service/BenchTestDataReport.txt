@@ -1,0 +1,16 @@
+2025/12/04 14:34:22 gateway test completed, guc:200, cnt:1000, doneCnt:1000, errCnt:0, lastErr:<nil>, took:47.4553ms
+2025/12/04 14:34:27 gateway test completed, guc:200, cnt:10000, doneCnt:10000, errCnt:0, lastErr:<nil>, took:155.0873ms
+2025/12/04 14:34:29 gateway test completed, guc:200, cnt:10000, doneCnt:10000, errCnt:0, lastErr:<nil>, took:145.6566ms
+2025/12/04 14:34:32 gateway test completed, guc:200, cnt:100000, doneCnt:100000, errCnt:0, lastErr:<nil>, took:1.3734278s
+2025/12/04 14:34:35 gateway test completed, guc:200, cnt:100000, doneCnt:100000, errCnt:0, lastErr:<nil>, took:1.3787428s
+2025/12/04 14:34:37 gateway test completed, guc:200, cnt:100000, doneCnt:100000, errCnt:0, lastErr:<nil>, took:1.3796073s
+2025/12/04 14:34:40 gateway test completed, guc:200, cnt:100000, doneCnt:100000, errCnt:0, lastErr:<nil>, took:1.3862404s
+2025/12/04 14:36:23 gateway test completed, guc:400, cnt:400000, doneCnt:400000, errCnt:0, lastErr:<nil>, took:5.6059225s
+2025/12/04 14:36:36 gateway test completed, guc:400, cnt:400000, doneCnt:400000, errCnt:0, lastErr:<nil>, took:5.5704232s
+2025/12/04 14:37:29 gateway test completed, guc:400, cnt:1000000, doneCnt:1000000, errCnt:0, lastErr:<nil>, took:14.2026464s
+2025/12/04 14:38:13 gateway test completed, guc:400, cnt:2000000, doneCnt:2000000, errCnt:65, lastErr:http status:500 not ok, took:28.280373s
+2025/12/04 14:42:47 gateway test completed, guc:400, cnt:2000000, doneCnt:2000000, errCnt:71, lastErr:http status:500 not ok, took:29.4177876s
+2025/12/04 14:43:58 gateway test completed, guc:400, cnt:4000000, doneCnt:4000000, errCnt:74, lastErr:http status:500 not ok, took:59.6513215s
+2025/12/04 15:02:02 gateway test completed, guc:800, cnt:10000000, doneCnt:10000000, errCnt:1, lastErr:Get "http://localhost:6010/endpoints/api/one_service/test/v1": dial tcp [::1]:6010: connectex: No connection could be made because the target machine actively refused it., took:2m12.0232585s
+
+极限性能大概在70k左右

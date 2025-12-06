@@ -1,0 +1,7 @@
+http-client-config:
+  max-conns-per-host: 512
+  max-idle-conn-duration-mills: 30000
+  max-conn-duration-mills: 300000
+  read-timeout-mills: 60000
+  write-timeout-mills: 60000
+  shutdown-timeout-mills: 30000

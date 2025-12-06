@@ -1,0 +1,26 @@
+{
+    "commonUpstreamClientCfg": {
+        "maxConns": 256,
+        "maxIdleConnDurationMills": 12000,
+        "maxConnDurationMills": 15000,
+        "readTimeoutMills": 10500,
+        "writeTimeoutMills": 10500,
+        "maxResponseBodySize": 2097152,
+        "maxConnWaitTimeoutMills": 5000
+    },
+    "tables": [
+        {
+            "id": "one_service",
+            "matchRule": {
+                "type": "path_rewrite",
+                "path": "/endpoints/api/one_service/**",
+                "args": {
+                    "depth": 3
+                }
+            },
+            "upstreamClientConfig": {
+                "maxConns": 256
+            }
+        }
+    ]
+}

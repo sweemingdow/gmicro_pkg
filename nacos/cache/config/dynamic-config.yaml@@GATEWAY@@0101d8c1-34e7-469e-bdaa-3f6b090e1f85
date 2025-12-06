@@ -1,0 +1,3 @@
+log-level:
+  appLogger: debug
+  monitorLogger: debug
