@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/lesismal/arpc"
-	"gmicro_pkg/examples/service_one/internal/handlers/hhttp"
-	"gmicro_pkg/examples/service_one/internal/routers/rhttp"
-	"gmicro_pkg/pkg/app"
-	"gmicro_pkg/pkg/routebinder"
+	"github.com/sweemingdow/gmicro_pkg/examples/service_one/internal/handlers/hhttp"
+	"github.com/sweemingdow/gmicro_pkg/examples/service_one/internal/routers/rhttp"
+	"github.com/sweemingdow/gmicro_pkg/pkg/app"
+	"github.com/sweemingdow/gmicro_pkg/pkg/routebinder"
 )
 
 type oneServiceRouteBinder struct {

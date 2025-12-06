@@ -2,7 +2,7 @@ package gserver
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"gmicro_pkg/pkg/utils"
+	"github.com/sweemingdow/gmicro_pkg/pkg/utils"
 	"strconv"
 )
 

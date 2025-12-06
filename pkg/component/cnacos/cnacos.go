@@ -7,9 +7,9 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client"
 	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
-	"gmicro_pkg/pkg/mylog"
-	"gmicro_pkg/pkg/utils"
-	"gmicro_pkg/pkg/utils/usli"
+	"github.com/sweemingdow/gmicro_pkg/pkg/mylog"
+	"github.com/sweemingdow/gmicro_pkg/pkg/utils"
+	"github.com/sweemingdow/gmicro_pkg/pkg/utils/usli"
 	"sync/atomic"
 )
 

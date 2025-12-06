@@ -2,12 +2,12 @@ package gmiddleware
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"gmicro_pkg/external/call/crpc/cauth"
-	"gmicro_pkg/gateway/pkg/gserver"
-	"gmicro_pkg/pkg/myerr"
-	"gmicro_pkg/pkg/mylog"
-	"gmicro_pkg/pkg/parser/json"
-	"gmicro_pkg/pkg/server/srpc/rpccall"
+	"github.com/sweemingdow/gmicro_pkg/external/call/crpc/cauth"
+	"github.com/sweemingdow/gmicro_pkg/gateway/pkg/gserver"
+	"github.com/sweemingdow/gmicro_pkg/pkg/myerr"
+	"github.com/sweemingdow/gmicro_pkg/pkg/mylog"
+	"github.com/sweemingdow/gmicro_pkg/pkg/parser/json"
+	"github.com/sweemingdow/gmicro_pkg/pkg/server/srpc/rpccall"
 )
 
 func AuthWithRpc(provider cauth.AuthRpcProvider) fiber.Handler {

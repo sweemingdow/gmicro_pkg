@@ -1,11 +1,11 @@
 package main
 
 import (
-	"gmicro_pkg/examples/service_two/internal/handlers/hhttp"
-	"gmicro_pkg/examples/service_two/internal/handlers/hrpc"
-	"gmicro_pkg/examples/service_two/internal/routers"
-	"gmicro_pkg/pkg/boot"
-	"gmicro_pkg/pkg/routebinder"
+	"github.com/sweemingdow/gmicro_pkg/examples/service_two/internal/handlers/hhttp"
+	"github.com/sweemingdow/gmicro_pkg/examples/service_two/internal/handlers/hrpc"
+	"github.com/sweemingdow/gmicro_pkg/examples/service_two/internal/routers"
+	"github.com/sweemingdow/gmicro_pkg/pkg/boot"
+	"github.com/sweemingdow/gmicro_pkg/pkg/routebinder"
 )
 
 func main() {

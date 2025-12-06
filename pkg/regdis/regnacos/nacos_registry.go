@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
-	"gmicro_pkg/pkg/regdis"
-	"gmicro_pkg/pkg/regdis/extra/enacos"
-	"gmicro_pkg/pkg/utils"
+	"github.com/sweemingdow/gmicro_pkg/pkg/regdis"
+	"github.com/sweemingdow/gmicro_pkg/pkg/regdis/extra/enacos"
+	"github.com/sweemingdow/gmicro_pkg/pkg/utils"
 )
 
 type nacosRegistry struct {

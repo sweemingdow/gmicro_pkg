@@ -2,8 +2,8 @@ package hhttp
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"gmicro_pkg/pkg/middleware/fibermw"
-	"gmicro_pkg/pkg/mylog"
+	"github.com/sweemingdow/gmicro_pkg/pkg/middleware/fibermw"
+	"github.com/sweemingdow/gmicro_pkg/pkg/mylog"
 )
 
 const (

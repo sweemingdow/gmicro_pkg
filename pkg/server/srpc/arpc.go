@@ -1,6 +1,6 @@
 package srpc
 
-import "gmicro_pkg/pkg/parser/json"
+import "github.com/sweemingdow/gmicro_pkg/pkg/parser/json"
 
 type JsonIterCodec struct {
 }

@@ -1,7 +1,7 @@
 package rpccall
 
 import (
-	"gmicro_pkg/pkg/utils"
+	"github.com/sweemingdow/gmicro_pkg/pkg/utils"
 	"time"
 )
 

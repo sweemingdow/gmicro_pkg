@@ -3,14 +3,14 @@ package dnacos
 import (
 	"context"
 	"fmt"
-	"gmicro_pkg/pkg/app"
-	"gmicro_pkg/pkg/component/cnacos"
-	"gmicro_pkg/pkg/config"
-	"gmicro_pkg/pkg/lifetime"
-	"gmicro_pkg/pkg/mylog"
-	"gmicro_pkg/pkg/regdis"
-	"gmicro_pkg/pkg/regdis/extra/enacos"
-	"gmicro_pkg/pkg/utils"
+	"github.com/sweemingdow/gmicro_pkg/pkg/app"
+	"github.com/sweemingdow/gmicro_pkg/pkg/component/cnacos"
+	"github.com/sweemingdow/gmicro_pkg/pkg/config"
+	"github.com/sweemingdow/gmicro_pkg/pkg/lifetime"
+	"github.com/sweemingdow/gmicro_pkg/pkg/mylog"
+	"github.com/sweemingdow/gmicro_pkg/pkg/regdis"
+	"github.com/sweemingdow/gmicro_pkg/pkg/regdis/extra/enacos"
+	"github.com/sweemingdow/gmicro_pkg/pkg/utils"
 )
 
 type nacosAutoRegistry struct {

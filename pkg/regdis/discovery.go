@@ -2,7 +2,7 @@ package regdis
 
 import (
 	"fmt"
-	"gmicro_pkg/pkg/parser/json"
+	"github.com/sweemingdow/gmicro_pkg/pkg/parser/json"
 )
 
 type DiscoverType uint8

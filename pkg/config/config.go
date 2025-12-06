@@ -1,8 +1,8 @@
 package config
 
 import (
-	"gmicro_pkg/pkg/parser/yaml"
-	"gmicro_pkg/pkg/utils"
+	"github.com/sweemingdow/gmicro_pkg/pkg/parser/yaml"
+	"github.com/sweemingdow/gmicro_pkg/pkg/utils"
 )
 
 type Config struct {

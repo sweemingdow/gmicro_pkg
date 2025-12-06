@@ -1,6 +1,6 @@
 package rpccall
 
-import "gmicro_pkg/pkg/myerr"
+import "github.com/sweemingdow/gmicro_pkg/pkg/myerr"
 
 const (
 	CallOk                 = "1"

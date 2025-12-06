@@ -2,10 +2,10 @@ package app
 
 import (
 	"fmt"
-	"gmicro_pkg/pkg/config"
-	"gmicro_pkg/pkg/parser/cmd"
-	"gmicro_pkg/pkg/parser/json"
-	"gmicro_pkg/pkg/utils"
+	"github.com/sweemingdow/gmicro_pkg/pkg/config"
+	"github.com/sweemingdow/gmicro_pkg/pkg/parser/cmd"
+	"github.com/sweemingdow/gmicro_pkg/pkg/parser/json"
+	"github.com/sweemingdow/gmicro_pkg/pkg/utils"
 	"path/filepath"
 	"strings"
 	"sync"

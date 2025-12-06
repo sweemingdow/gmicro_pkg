@@ -2,8 +2,8 @@ package dlog
 
 import (
 	"context"
+	"github.com/sweemingdow/gmicro_pkg/pkg/lifetime"
 	"github.com/sweemingdow/log_remote_writer/pkg/writer"
-	"gmicro_pkg/pkg/lifetime"
 )
 
 type remoteLogWriter struct {

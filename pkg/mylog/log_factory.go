@@ -2,7 +2,7 @@ package mylog
 
 import (
 	"github.com/rs/zerolog"
-	"gmicro_pkg/pkg/app"
+	"github.com/sweemingdow/gmicro_pkg/pkg/app"
 )
 
 func NewLogger(module string) zerolog.Logger {

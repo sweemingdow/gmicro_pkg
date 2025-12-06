@@ -4,9 +4,9 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/v2/clients/naming_client"
 	"github.com/nacos-group/nacos-sdk-go/v2/model"
 	"github.com/nacos-group/nacos-sdk-go/v2/vo"
-	"gmicro_pkg/pkg/regdis"
-	"gmicro_pkg/pkg/regdis/extra/enacos"
-	"gmicro_pkg/pkg/utils/usli"
+	"github.com/sweemingdow/gmicro_pkg/pkg/regdis"
+	"github.com/sweemingdow/gmicro_pkg/pkg/regdis/extra/enacos"
+	"github.com/sweemingdow/gmicro_pkg/pkg/utils/usli"
 	"strconv"
 )
 

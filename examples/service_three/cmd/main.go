@@ -2,10 +2,10 @@ package main
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"gmicro_pkg/examples/service_three/internal/routers"
-	"gmicro_pkg/pkg/boot"
-	"gmicro_pkg/pkg/routebinder"
-	"gmicro_pkg/pkg/server/srpc/rclient"
+	"github.com/sweemingdow/gmicro_pkg/examples/service_three/internal/routers"
+	"github.com/sweemingdow/gmicro_pkg/pkg/boot"
+	"github.com/sweemingdow/gmicro_pkg/pkg/routebinder"
+	"github.com/sweemingdow/gmicro_pkg/pkg/server/srpc/rclient"
 )
 
 func main() {

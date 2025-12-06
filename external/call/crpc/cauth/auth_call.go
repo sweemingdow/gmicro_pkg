@@ -1,7 +1,7 @@
 package cauth
 
 import (
-	"gmicro_pkg/pkg/server/srpc/rpccall"
+	"github.com/sweemingdow/gmicro_pkg/pkg/server/srpc/rpccall"
 )
 
 type AuthReq struct {

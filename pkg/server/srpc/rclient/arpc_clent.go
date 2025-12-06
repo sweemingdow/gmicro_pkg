@@ -3,9 +3,9 @@ package rclient
 import (
 	"fmt"
 	"github.com/lesismal/arpc"
-	"gmicro_pkg/pkg/app"
-	"gmicro_pkg/pkg/regdis"
-	"gmicro_pkg/pkg/server/srpc"
+	"github.com/sweemingdow/gmicro_pkg/pkg/app"
+	"github.com/sweemingdow/gmicro_pkg/pkg/regdis"
+	"github.com/sweemingdow/gmicro_pkg/pkg/server/srpc"
 	"net"
 	"sync/atomic"
 	"time"

@@ -2,12 +2,12 @@ package main
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"gmicro_pkg/examples/service_one/internal/handlers/hhttp"
-	"gmicro_pkg/examples/service_one/internal/routers"
-	"gmicro_pkg/pkg/boot"
-	"gmicro_pkg/pkg/mylog"
-	"gmicro_pkg/pkg/routebinder"
-	"gmicro_pkg/pkg/server/srpc/rclient"
+	"github.com/sweemingdow/gmicro_pkg/examples/service_one/internal/handlers/hhttp"
+	"github.com/sweemingdow/gmicro_pkg/examples/service_one/internal/routers"
+	"github.com/sweemingdow/gmicro_pkg/pkg/boot"
+	"github.com/sweemingdow/gmicro_pkg/pkg/mylog"
+	"github.com/sweemingdow/gmicro_pkg/pkg/routebinder"
+	"github.com/sweemingdow/gmicro_pkg/pkg/server/srpc/rclient"
 )
 
 func main() {
@@ -41,16 +41,16 @@ func main() {
 import (
 	"context"
 	"github.com/gofiber/fiber/v2"
-	"gmicro_pkg/pkg/app"
-	"gmicro_pkg/pkg/component/cnacos"
-	"gmicro_pkg/pkg/decorate/logdeco"
-	"gmicro_pkg/pkg/decorate/nacosdeco"
-	"gmicro_pkg/pkg/graceful"
-	"gmicro_pkg/pkg/lifetime"
-	"gmicro_pkg/pkg/mylog"
-	"gmicro_pkg/pkg/parser/cmdparser"
-	"gmicro_pkg/pkg/regdis/nacosreg"
-	"gmicro_pkg/pkg/server/httpsrv"
+	"github.com/sweemingdow/gmicro_pkg/pkg/app"
+	"github.com/sweemingdow/gmicro_pkg/pkg/component/cnacos"
+	"github.com/sweemingdow/gmicro_pkg/pkg/decorate/logdeco"
+	"github.com/sweemingdow/gmicro_pkg/pkg/decorate/nacosdeco"
+	"github.com/sweemingdow/gmicro_pkg/pkg/graceful"
+	"github.com/sweemingdow/gmicro_pkg/pkg/lifetime"
+	"github.com/sweemingdow/gmicro_pkg/pkg/mylog"
+	"github.com/sweemingdow/gmicro_pkg/pkg/parser/cmdparser"
+	"github.com/sweemingdow/gmicro_pkg/pkg/regdis/nacosreg"
+	"github.com/sweemingdow/gmicro_pkg/pkg/server/httpsrv"
 	"log"
 	"time"
 )

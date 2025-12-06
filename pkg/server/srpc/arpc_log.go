@@ -2,7 +2,7 @@ package srpc
 
 import (
 	"github.com/lesismal/arpc/log"
-	"gmicro_pkg/pkg/mylog"
+	"github.com/sweemingdow/gmicro_pkg/pkg/mylog"
 	"sync/atomic"
 )
 

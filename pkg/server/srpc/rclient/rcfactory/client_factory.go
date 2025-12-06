@@ -2,8 +2,8 @@ package rcfactory
 
 import (
 	"context"
-	"gmicro_pkg/pkg/lifetime"
-	"gmicro_pkg/pkg/server/srpc/rclient"
+	"github.com/sweemingdow/gmicro_pkg/pkg/lifetime"
+	"github.com/sweemingdow/gmicro_pkg/pkg/server/srpc/rclient"
 )
 
 // arpc client abstract factory

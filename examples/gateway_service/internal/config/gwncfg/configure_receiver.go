@@ -1,11 +1,11 @@
 package gwncfg
 
 import (
-	"gmicro_pkg/gateway/pkg/gserver"
-	"gmicro_pkg/pkg/decorate/dnacos"
-	"gmicro_pkg/pkg/mylog"
-	"gmicro_pkg/pkg/parser/json"
-	"gmicro_pkg/pkg/parser/yaml"
+	"github.com/sweemingdow/gmicro_pkg/gateway/pkg/gserver"
+	"github.com/sweemingdow/gmicro_pkg/pkg/decorate/dnacos"
+	"github.com/sweemingdow/gmicro_pkg/pkg/mylog"
+	"github.com/sweemingdow/gmicro_pkg/pkg/parser/json"
+	"github.com/sweemingdow/gmicro_pkg/pkg/parser/yaml"
 )
 
 const (

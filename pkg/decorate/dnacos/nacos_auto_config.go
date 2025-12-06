@@ -5,10 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/rs/zerolog"
-	"gmicro_pkg/pkg/cfgcenter/cfgnacos"
-	"gmicro_pkg/pkg/config"
-	"gmicro_pkg/pkg/lifetime"
-	"gmicro_pkg/pkg/mylog"
+	"github.com/sweemingdow/gmicro_pkg/pkg/cfgcenter/cfgnacos"
+	"github.com/sweemingdow/gmicro_pkg/pkg/config"
+	"github.com/sweemingdow/gmicro_pkg/pkg/lifetime"
+	"github.com/sweemingdow/gmicro_pkg/pkg/mylog"
 	"sync"
 )
 

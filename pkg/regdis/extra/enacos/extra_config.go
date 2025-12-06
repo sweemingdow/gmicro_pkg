@@ -2,7 +2,7 @@ package enacos
 
 import (
 	"fmt"
-	"gmicro_pkg/pkg/regdis/extra"
+	"github.com/sweemingdow/gmicro_pkg/pkg/regdis/extra"
 )
 
 const (

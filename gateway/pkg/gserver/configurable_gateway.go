@@ -3,11 +3,11 @@ package gserver
 import (
 	"context"
 	"github.com/gofiber/fiber/v2"
-	"gmicro_pkg/pkg/decorate/dnacos"
-	"gmicro_pkg/pkg/lifetime"
-	"gmicro_pkg/pkg/mylog"
-	"gmicro_pkg/pkg/regdis"
-	"gmicro_pkg/pkg/server/shttp/revproxy"
+	"github.com/sweemingdow/gmicro_pkg/pkg/decorate/dnacos"
+	"github.com/sweemingdow/gmicro_pkg/pkg/lifetime"
+	"github.com/sweemingdow/gmicro_pkg/pkg/mylog"
+	"github.com/sweemingdow/gmicro_pkg/pkg/regdis"
+	"github.com/sweemingdow/gmicro_pkg/pkg/server/shttp/revproxy"
 	"time"
 )
 

@@ -2,8 +2,8 @@ package rhttp
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"gmicro_pkg/examples/service_one/internal/handlers/hhttp"
-	"gmicro_pkg/pkg/middleware/fibermw"
+	"github.com/sweemingdow/gmicro_pkg/examples/service_one/internal/handlers/hhttp"
+	"github.com/sweemingdow/gmicro_pkg/pkg/middleware/fibermw"
 )
 
 func ConfigureOneTwoThreeRouter(fa *fiber.App, handler *hhttp.OneTwoThreeHandler) {

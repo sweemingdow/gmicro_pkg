@@ -3,11 +3,11 @@ package hrpc
 import (
 	"fmt"
 	"github.com/lesismal/arpc"
-	"gmicro_pkg/external/call/crpc/cauth"
-	"gmicro_pkg/pkg/app"
-	"gmicro_pkg/pkg/mylog"
-	"gmicro_pkg/pkg/server/srpc"
-	"gmicro_pkg/pkg/server/srpc/rpccall"
+	"github.com/sweemingdow/gmicro_pkg/external/call/crpc/cauth"
+	"github.com/sweemingdow/gmicro_pkg/pkg/app"
+	"github.com/sweemingdow/gmicro_pkg/pkg/mylog"
+	"github.com/sweemingdow/gmicro_pkg/pkg/server/srpc"
+	"github.com/sweemingdow/gmicro_pkg/pkg/server/srpc/rpccall"
 )
 
 const (

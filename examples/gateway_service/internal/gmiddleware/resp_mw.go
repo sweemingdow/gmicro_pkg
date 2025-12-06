@@ -2,11 +2,11 @@ package gmiddleware
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/sweemingdow/gmicro_pkg/gateway/pkg/gserver"
+	"github.com/sweemingdow/gmicro_pkg/pkg/app"
+	"github.com/sweemingdow/gmicro_pkg/pkg/myerr"
+	"github.com/sweemingdow/gmicro_pkg/pkg/server/srpc/rpccall"
 	"github.com/valyala/fasthttp"
-	"gmicro_pkg/gateway/pkg/gserver"
-	"gmicro_pkg/pkg/app"
-	"gmicro_pkg/pkg/myerr"
-	"gmicro_pkg/pkg/server/srpc/rpccall"
 )
 
 func RespAttach() fiber.Handler {

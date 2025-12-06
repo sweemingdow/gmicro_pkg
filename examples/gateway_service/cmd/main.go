@@ -2,15 +2,15 @@ package main
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"gmicro_pkg/examples/gateway_service/internal/config/gwncfg"
-	"gmicro_pkg/examples/gateway_service/internal/gmiddleware"
-	"gmicro_pkg/external/call/crpc/cauth"
-	"gmicro_pkg/gateway/pkg/gserver"
-	"gmicro_pkg/pkg/app"
-	"gmicro_pkg/pkg/boot"
-	"gmicro_pkg/pkg/regdis/disnacos"
-	"gmicro_pkg/pkg/regdis/extra/enacos"
-	"gmicro_pkg/pkg/routebinder"
+	"github.com/sweemingdow/gmicro_pkg/examples/gateway_service/internal/config/gwncfg"
+	"github.com/sweemingdow/gmicro_pkg/examples/gateway_service/internal/gmiddleware"
+	"github.com/sweemingdow/gmicro_pkg/external/call/crpc/cauth"
+	"github.com/sweemingdow/gmicro_pkg/gateway/pkg/gserver"
+	"github.com/sweemingdow/gmicro_pkg/pkg/app"
+	"github.com/sweemingdow/gmicro_pkg/pkg/boot"
+	"github.com/sweemingdow/gmicro_pkg/pkg/regdis/disnacos"
+	"github.com/sweemingdow/gmicro_pkg/pkg/regdis/extra/enacos"
+	"github.com/sweemingdow/gmicro_pkg/pkg/routebinder"
 )
 
 func main() {

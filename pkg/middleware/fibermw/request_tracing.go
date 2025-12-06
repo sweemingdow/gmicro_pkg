@@ -2,7 +2,7 @@ package fibermw
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"gmicro_pkg/pkg/mylog"
+	"github.com/sweemingdow/gmicro_pkg/pkg/mylog"
 	"time"
 )
 

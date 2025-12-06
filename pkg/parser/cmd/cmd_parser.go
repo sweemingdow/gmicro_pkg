@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"flag"
-	"gmicro_pkg/pkg/utils"
+	"github.com/sweemingdow/gmicro_pkg/pkg/utils"
 )
 
 var DefaultParseEntry = []CmdParseEntry{

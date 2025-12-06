@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/lesismal/arpc"
-	"gmicro_pkg/pkg/routebinder"
+	"github.com/sweemingdow/gmicro_pkg/pkg/routebinder"
 	"golang.org/x/sync/errgroup"
 	"io"
 	"log"
