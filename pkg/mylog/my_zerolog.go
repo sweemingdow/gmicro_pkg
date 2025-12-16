@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/pkgerrors"
+	"github.com/sweemingdow/gmicro_pkg/pkg/app"
 	"github.com/sweemingdow/gmicro_pkg/pkg/config"
 	"github.com/sweemingdow/gmicro_pkg/pkg/utils"
 	"github.com/sweemingdow/log_remote_writer/pkg/writer"
@@ -12,6 +13,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strconv"
 	"sync/atomic"
 )
 
@@ -25,7 +27,9 @@ func init() {
 	zerolog.TimeFieldFormat = utils.ProgramFmt
 }
 
-func InitLogger(logCfg config.LogConfig, colorfulStdout bool, appName string) writer.RemoteWriter {
+type LogFileNameGenerator func() string
+
+func InitLogger(logCfg config.LogConfig, colorfulStdout bool, appName string, nameGenFunc LogFileNameGenerator) writer.RemoteWriter {
 	if !hadInit.CompareAndSwap(false, true) {
 		panic("already initialized")
 	}
@@ -44,7 +48,7 @@ func InitLogger(logCfg config.LogConfig, colorfulStdout bool, appName string) wr
 
 	writers = append(writers, createStdoutWriter(colorfulStdout))
 
-	writers = append(writers, createFileWriter(logCfg.FileLogCfg, appName))
+	writers = append(writers, createFileWriter(logCfg.FileLogCfg, appName, nameGenFunc))
 
 	remoteWriter := createRemoteWriter(logCfg.RemoteLogCfg)
 	writers = append(writers, remoteWriter)
@@ -80,9 +84,31 @@ func createStdoutWriter(colorfulStdout bool) io.Writer {
 	}
 }
 
-func createFileWriter(fileCfg config.FileLogConfig, appName string) io.Writer {
+func createFileWriter(fileCfg config.FileLogConfig, appName string, nameGenFunc LogFileNameGenerator) io.Writer {
+	var logNamePaths []string
+	if nameGenFunc != nil {
+		logNamePaths = append(logNamePaths, fileCfg.FilePath, appName)
+		logNamePaths = append(logNamePaths, nameGenFunc())
+		logNamePaths = append(logNamePaths, "point.log")
+	} else {
+		var port int
+
+		ta := app.GetTheApp()
+		port = ta.GetHttpPort()
+		if port == 0 {
+			port = ta.GetRpcPort()
+		}
+
+		logNamePaths = []string{
+			fileCfg.FilePath,
+			appName,
+			strconv.Itoa(port),
+			"point.log",
+		}
+	}
+
 	return &lumberjack.Logger{
-		Filename:   filepath.Join(fileCfg.FilePath, appName, "point.log"),
+		Filename:   filepath.Join(logNamePaths...),
 		MaxSize:    fileCfg.MaxFileSize,
 		MaxAge:     fileCfg.HistoryDays,
 		MaxBackups: fileCfg.MaxBackup,

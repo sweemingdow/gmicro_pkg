@@ -22,6 +22,7 @@ import (
 	"github.com/sweemingdow/gmicro_pkg/pkg/server/srpc/rclient"
 	"github.com/sweemingdow/gmicro_pkg/pkg/server/srpc/rclient/rcfactory"
 	"log"
+	"sync"
 	"time"
 )
 
@@ -43,13 +44,17 @@ type AppContext struct {
 	preHooks []ShutdownHook
 
 	postHooks []ShutdownHook
+
+	mu sync.Mutex
+
+	extraStore map[string]any
 }
 
-type ShutdownHook func() error
+type ShutdownHook func(ac *AppContext, ctx context.Context) error
 
-func (ac *AppContext) GetFinalizer() *lifetime.AppFinalizer {
-	return ac.finalizer
-}
+//func (ac *AppContext) GetFinalizer() *lifetime.AppFinalizer {
+//	return ac.finalizer
+//}
 
 func (ac *AppContext) GetEc() chan<- error {
 	return ac.exitChan
@@ -65,6 +70,18 @@ func (ac *AppContext) GetArpcClientFactory() rcfactory.ArpcClientFactory {
 
 func (ac *AppContext) GetConfigureReceiver() dnacos.ConfigurationReceiver {
 	return ac.configureReceiver
+}
+
+func (ac *AppContext) StoreExtra(tag string, val any) {
+	ac.extraStore[tag] = val
+}
+
+func (ac *AppContext) GetStored(tag string) any {
+	return ac.extraStore[tag]
+}
+
+func (ac *AppContext) CollectLifecycle(tag string, lc lifetime.LifeCycle) {
+	ac.finalizer.Collect(tag, lc)
 }
 
 // 可选功能的初始化参数签名
@@ -95,7 +112,7 @@ func (b *Booter) AddServerOption(opt AppOption) {
 	b.serverStageOptions = append(b.serverStageOptions, opt)
 }
 
-type ReadyForRouterMount func(ac *AppContext) routebinder.AppRouterBinder
+type ReadyForRouterMount func(ac *AppContext) (routebinder.AppRouterBinder, error)
 
 func (b *Booter) StartAndServe(ready ReadyForRouterMount) {
 	ec := make(chan error, 2)
@@ -109,8 +126,9 @@ func (b *Booter) StartAndServe(ready ReadyForRouterMount) {
 	ta := app.NewApp(cp)
 
 	ac := &AppContext{
-		finalizer: finalizer,
-		exitChan:  ec,
+		finalizer:  finalizer,
+		exitChan:   ec,
+		extraStore: make(map[string]any),
 	}
 
 	ac.cmdParser = cp
@@ -135,7 +153,13 @@ func (b *Booter) StartAndServe(ready ReadyForRouterMount) {
 	lg.Debug().Msg("component stage completed")
 
 	if ready != nil {
-		ac.routeBinder = ready(ac)
+		router, err := ready(ac)
+		if err != nil {
+			ec <- err
+			return
+		}
+
+		ac.routeBinder = router
 	}
 
 	// 最后执行: ServerStage
@@ -176,7 +200,7 @@ func (b *Booter) shutdown(ac *AppContext, exitErr error) {
 	defer cancel()
 
 	var allErrs []error
-	err := b.shutdownWithHook(ac.preHooks)
+	err := b.shutdownWithHook(ac, ctxTimeout, ac.preHooks)
 	if err != nil {
 		allErrs = append(allErrs, err)
 	}
@@ -201,7 +225,7 @@ func (b *Booter) shutdown(ac *AppContext, exitErr error) {
 		return
 	}
 
-	err = b.shutdownWithHook(ac.postHooks)
+	err = b.shutdownWithHook(ac, ctxTimeout, ac.postHooks)
 	if err != nil {
 		allErrs = append(allErrs, err)
 	}
@@ -215,14 +239,14 @@ func exit(errs []error, aborted bool) {
 	time.Sleep(16 * time.Millisecond)
 }
 
-func (b *Booter) shutdownWithHook(hooks []ShutdownHook) error {
+func (b *Booter) shutdownWithHook(ac *AppContext, ctx context.Context, hooks []ShutdownHook) error {
 	if len(hooks) == 0 {
 		return nil
 	}
 
 	var errs []error
 	for _, hook := range hooks {
-		err := hook()
+		err := hook(ac, ctx)
 		if err != nil {
 			errs = append(errs, err)
 		}
@@ -237,11 +261,11 @@ func (b *Booter) shutdownWithHook(hooks []ShutdownHook) error {
 }
 
 // 初始化日志
-func WithLogger() AppOption {
+func WithLogger(nameGenFunc mylog.LogFileNameGenerator) AppOption {
 	return func(ac *AppContext) error {
 		ta := app.GetTheApp()
 
-		remoteWriter := mylog.InitLogger(ta.GetConfig().LogCfg, ta.IsDevProfile(), ta.GetAppName())
+		remoteWriter := mylog.InitLogger(ta.GetConfig().LogCfg, ta.IsDevProfile(), ta.GetAppName(), nameGenFunc)
 
 		ac.finalizer.Collect("log_writer", dlog.NewLogRemoteWriter(remoteWriter))
 		return nil
@@ -333,6 +357,19 @@ func WithRpcServer() AppOption {
 		ac.finalizer.Collect("arpc_server", as)
 
 		return nil
+	}
+}
+
+type ConfigureLoaded func(ac *AppContext) error
+
+// Component Stage 配置加载完毕(静态配置, 和动态配置第一次加载)
+func WithConfigureLoaded(cl ConfigureLoaded) AppOption {
+	return func(ac *AppContext) error {
+		if ac.GetConfigureReceiver() == nil {
+			return errors.New("configure can not ready without receiver")
+		}
+
+		return cl(ac)
 	}
 }
 

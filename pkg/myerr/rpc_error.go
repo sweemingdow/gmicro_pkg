@@ -93,3 +93,28 @@ func DecodeRpcRespError(err error) (RpcRespError, bool) {
 
 	return rre, false
 }
+
+type RpcParamValidateError struct {
+	ErrDesc string
+	Msg     string
+}
+
+func NewRpcParamValidateError(desc, msg string) RpcParamValidateError {
+	return RpcParamValidateError{
+		ErrDesc: desc,
+		Msg:     msg,
+	}
+}
+
+func (pve RpcParamValidateError) Error() string {
+	return fmt.Sprintf("rpc_param_validate_err[desc:%s, msg:%s]", pve.ErrDesc, pve.Msg)
+}
+
+func DecodeRpcParamValidateError(err error) (RpcParamValidateError, bool) {
+	var pve RpcParamValidateError
+	if errors.As(err, &pve) {
+		return pve, true
+	}
+
+	return pve, false
+}

@@ -21,7 +21,17 @@ type UpdateReq struct {
 	RealAuthed int    `json:"realAuthed"`
 }
 
+type PingReq struct {
+	PingId string `json:"pingId"`
+}
+
+type PingResp struct {
+	PongId string `json:"pongId"`
+}
+
 // @rpc_server two_service
+//
+// #go:generate go run ../../../../tools/rpcgen/main.go -type AuthRpcProvider -pkg_prefix github.com/sweemingdow/gmicro_pkg
 //
 //go:generate rpcgen -type AuthRpcProvider
 type AuthRpcProvider interface {
@@ -34,4 +44,8 @@ type AuthRpcProvider interface {
 
 	// @path /update_token
 	UpdateToken(req rpccall.RpcReqWrapper[UpdateReq]) (rpccall.RpcRespSimple, error)
+
+	Ping(req PingReq) (PingResp, error)
+
+	//NoArg() error
 }

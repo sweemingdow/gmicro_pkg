@@ -5,6 +5,28 @@ import (
 	"strconv"
 )
 
+type Predicate[T any] func(val T) bool
+
+func RemoveFirstIf[T any](src []T, pred Predicate[T]) []T {
+	for idx, t := range src {
+		if pred(t) {
+			return Remove[T](src, idx)
+		}
+	}
+
+	return src
+}
+
+func Remove[T any](src []T, idx int) []T {
+	return append(src[:idx], src[idx+1:]...)
+}
+
+// 用最后一个元素替代, 原切片的顺序会改变
+func RemoveFast[T any](src []T, idx int) []T {
+	src[idx] = src[len(src)-1]
+	return src[:len(src)-1]
+}
+
 type Converter[T, R any] func(T) R
 
 // eg: []int => []string

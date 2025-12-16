@@ -1,11 +1,15 @@
 package rpccall
 
-import "github.com/sweemingdow/gmicro_pkg/pkg/myerr"
+import (
+	"github.com/rs/zerolog"
+	"github.com/sweemingdow/gmicro_pkg/pkg/myerr"
+)
 
 const (
 	CallOk                 = "1"
 	GeneralErr             = "0"
-	ServerUnpredictableErr = "1000"
+	ServerUnpredictableErr = "1000" // 无法预料, 未知错误
+	ParamValidateErr       = "1100" // 参数验证失败
 )
 
 type RpcRespSimple struct {
@@ -34,6 +38,14 @@ func SimpleErrAll(code, desc, msg string) RpcRespSimple {
 		ErrDesc: desc,
 		Msg:     msg,
 	}
+
+}
+
+func SimpleErrDesc(desc string) RpcRespSimple {
+	return RpcRespSimple{
+		Code:    GeneralErr,
+		ErrDesc: desc,
+	}
 }
 
 func SimpleErrCodeDesc(code, desc string) RpcRespSimple {
@@ -51,6 +63,14 @@ func SimpleUnpredictableErr(err error) RpcRespSimple {
 	return RpcRespSimple{
 		Code:    ServerUnpredictableErr,
 		ErrDesc: err.Error(),
+	}
+}
+
+func SimpleParamValidateErr(desc, msg string) RpcRespSimple {
+	return RpcRespSimple{
+		Code:    ParamValidateErr,
+		ErrDesc: desc,
+		Msg:     msg,
 	}
 }
 
@@ -103,32 +123,6 @@ func ErrGeneralAll[T any](desc, msg string, resp T) RpcRespWrapper[T] {
 	}
 }
 
-func ErrGeneral[T any](desc, msg string) RpcRespWrapper[T] {
-	return RpcRespWrapper[T]{
-		Code:    GeneralErr,
-		ErrDesc: desc,
-		Msg:     msg,
-	}
-}
-
-func ErrMsg[T any](msg string) RpcRespWrapper[T] {
-	return RpcRespWrapper[T]{
-		Code: GeneralErr,
-		Msg:  msg,
-	}
-}
-
-func ErrCodeMsg[T any](code, msg string) RpcRespWrapper[T] {
-	return RpcRespWrapper[T]{
-		Code: code,
-		Msg:  msg,
-	}
-}
-
-func ErrCodeMsgDesc[T any](code, msg, desc string) RpcRespWrapper[T] {
-	return RpcRespWrapper[T]{
-		Code:    code,
-		ErrDesc: desc,
-		Msg:     msg,
-	}
+func LoggerWrapWithResp[T any](reqId string, resp RpcRespWrapper[T], lg zerolog.Logger) zerolog.Logger {
+	return lg.With().Str("req_id", reqId).Any("rpc_resp", resp).Logger()
 }
