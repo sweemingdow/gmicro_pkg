@@ -1,0 +1,38 @@
+package umap
+
+func Flat[K comparable, V any](m map[K]V) []any {
+	flat := make([]any, len(m)*2)
+	idx := 0
+
+	for k, v := range m {
+		flat[idx] = k
+		flat[idx+1] = v
+		idx += 2
+	}
+
+	return flat
+}
+
+func ToSli[K comparable, V any](m map[K]V) []V {
+	sli := make([]V, len(m))
+	idx := 0
+
+	for _, v := range m {
+		sli[idx] = v
+		idx++
+	}
+
+	return sli
+}
+
+type Mapper[K, T, E any] func(key K, val T) E
+
+func Map[K comparable, V, E any](m map[K]V, mp Mapper[K, V, E]) map[K]E {
+	newMap := make(map[K]E, len(m))
+
+	for k, v := range m {
+		newMap[k] = mp(k, v)
+	}
+
+	return newMap
+}

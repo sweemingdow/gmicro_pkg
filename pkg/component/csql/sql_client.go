@@ -2,12 +2,15 @@ package csql
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gocraft/dbr/v2"
 	"github.com/sweemingdow/gmicro_pkg/pkg/mylog"
 	"time"
 )
+
+const SqlLifetimeTag = "sql_client"
 
 type SqlCfg struct {
 	Schema      string
@@ -109,4 +112,60 @@ type Action func(conn *dbr.Connection) error
 func (sc *SqlClient) With(a Action) error {
 
 	return a(sc.conn)
+}
+
+type SessAction func(sess *dbr.Session) error
+
+func (sc *SqlClient) WithSess(sa SessAction) error {
+	return sa(sc.conn.NewSession(nil))
+}
+
+type TransAction func(tx *dbr.Tx) error
+
+func (sc *SqlClient) WithTrans(ta TransAction) error {
+	se := sc.conn.NewSession(nil)
+
+	tx, err := se.Begin()
+	if err != nil {
+		return err
+	}
+
+	defer tx.RollbackUnlessCommitted()
+
+	if err = ta(tx); err != nil {
+		return err
+	}
+
+	if err = tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+type TransCtxAction func(ctx context.Context, tx *dbr.Tx) error
+
+func (sc *SqlClient) WithTransCtx(ctx context.Context, tca TransCtxAction) error {
+	return sc.WithTransAdvance(ctx, tca, nil)
+}
+
+func (sc *SqlClient) WithTransAdvance(ctx context.Context, tca TransCtxAction, ops *sql.TxOptions) error {
+	se := sc.conn.NewSession(nil)
+
+	tx, err := se.BeginTx(ctx, ops)
+	if err != nil {
+		return err
+	}
+
+	defer tx.RollbackUnlessCommitted()
+
+	if err = tca(ctx, tx); err != nil {
+		return err
+	}
+
+	if err = tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
 }

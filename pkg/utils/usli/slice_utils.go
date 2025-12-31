@@ -7,6 +7,17 @@ import (
 
 type Predicate[T any] func(val T) bool
 
+func FindFirstIf[T any](src []T, pred Predicate[T]) (T, bool) {
+	for _, t := range src {
+		if pred(t) {
+			return t, true
+		}
+	}
+
+	var zero T
+	return zero, false
+}
+
 func RemoveFirstIf[T any](src []T, pred Predicate[T]) []T {
 	for idx, t := range src {
 		if pred(t) {

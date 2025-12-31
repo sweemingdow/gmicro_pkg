@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+const ConsumerLifetimeTag = "nsq_consumer"
+
 type (
 	ConsumerItem struct {
 		Topic                 string
@@ -134,7 +136,7 @@ func (ncs *NsqConsumer) OnDispose(ctx context.Context) error {
 		return ctx.Err()
 	case <-allDone:
 		lg := mylog.AppLogger()
-		lg.Info().Msg("nsq consumers stopped gracefully")
+		lg.Info().Msg("nsq consumers stopped successfully")
 		return nil
 	}
 }

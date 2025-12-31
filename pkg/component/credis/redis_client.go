@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+const RedisLifetimeTag = "redis_client"
+
 type RedisCfg struct {
 	Addresses      []string // [192.168.1.1:6379]
 	Database       int

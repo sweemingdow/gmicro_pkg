@@ -6,6 +6,8 @@ import (
 	"github.com/sweemingdow/gmicro_pkg/pkg/mylog"
 )
 
+const ProducerLifetimeTag = "nsq_producer"
+
 type (
 	NsqPdConfig struct {
 		NsqdAddr string // ip:port
@@ -34,8 +36,15 @@ type PublishParam struct {
 }
 
 func (npd *NsqProducer) Publish(pp PublishParam) error {
-	err := npd.pd.Publish(pp.Topic, pp.Payload)
-	if err != nil {
+	if err := npd.pd.Publish(pp.Topic, pp.Payload); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (npd *NsqProducer) PublishAsync(pp PublishParam, doneChan chan *nsq.ProducerTransaction, args []any) error {
+	if err := npd.pd.PublishAsync(pp.Topic, pp.Payload, doneChan, args...); err != nil {
 		return err
 	}
 
@@ -58,7 +67,7 @@ func (npd *NsqProducer) OnDispose(ctx context.Context) error {
 		return ctx.Err()
 	case <-stopped:
 		lg := mylog.AppLogger()
-		lg.Info().Msg("nsq producer stopped gracefully")
+		lg.Info().Msg("nsq producer stopped successfully")
 		return nil
 	}
 }

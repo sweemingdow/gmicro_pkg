@@ -47,9 +47,5 @@ func CreateI18nReq[T any](i18nTag string, req T) RpcReqWrapper[T] {
 }
 
 func LoggerWrapWithReq[T any](req RpcReqWrapper[T], lg zerolog.Logger) zerolog.Logger {
-	return lg.With().Str("req_id", req.ReqId).Any("rpc_req", req).Logger()
-}
-
-func LoggerWrapWithReqId(reqId string, lg zerolog.Logger) zerolog.Logger {
-	return lg.With().Str("req_id", reqId).Logger()
+	return lg.With().Str("req_id", req.ReqId).Logger()
 }

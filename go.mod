@@ -5,12 +5,17 @@ go 1.24.0
 toolchain go1.24.10
 
 require (
+	github.com/bwmarrin/snowflake v0.3.0
+	github.com/go-sql-driver/mysql v1.6.0
+	github.com/gocraft/dbr/v2 v2.7.7
 	github.com/gofiber/fiber/v2 v2.52.10
 	github.com/json-iterator/go v1.1.12
 	github.com/lesismal/arpc v1.2.17
 	github.com/nacos-group/nacos-sdk-go/v2 v2.3.5
 	github.com/nsqio/go-nsq v1.1.0
+	github.com/redis/go-redis/v9 v9.17.2
 	github.com/rs/zerolog v1.34.0
+	github.com/sony/sonyflake/v2 v2.2.0
 	github.com/sweemingdow/log_remote_writer v0.0.3
 	github.com/valyala/fasthttp v1.68.0
 	golang.org/x/sync v0.18.0
@@ -43,15 +48,12 @@ require (
 	github.com/andybalholm/brotli v1.2.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
-	github.com/bwmarrin/snowflake v0.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/clbanning/mxj/v2 v2.5.5 // indirect
 	github.com/clipperhouse/stringish v0.1.1 // indirect
 	github.com/clipperhouse/uax29/v2 v2.3.0 // indirect
 	github.com/deckarep/golang-set v1.7.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
-	github.com/gocraft/dbr/v2 v2.7.7 // indirect
-	github.com/godruoyi/go-snowflake v0.0.2 // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
@@ -70,8 +72,6 @@ require (
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.32.1 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
-	github.com/redis/go-redis/v9 v9.17.2 // indirect
-	github.com/sony/sonyflake/v2 v2.2.0 // indirect
 	github.com/stretchr/testify v1.11.1 // indirect
 	github.com/tjfoc/gmsm v1.4.1 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
