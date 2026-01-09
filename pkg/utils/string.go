@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -29,4 +30,13 @@ func ExtractOneHp(addr string) Hp {
 	port, _ := strconv.Atoi(sli[1])
 
 	return Hp{sli[0], port}
+}
+
+func MustParseI64(val string) int64 {
+	v, err := strconv.ParseInt(val, 10, 64)
+	if err != nil {
+		panic(fmt.Sprintf("parse int64 failed, err=%v", err))
+	}
+
+	return v
 }

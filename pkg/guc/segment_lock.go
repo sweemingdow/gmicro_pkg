@@ -9,12 +9,14 @@ import (
 type (
 	SegKey interface {
 		~string | ~int | ~int8 | ~int16 | ~int32 | ~int64 |
-			~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64
+		~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64
 	}
 
 	HashFunc[K SegKey] func(key K) uint32
 
 	Call func()
+
+	CallResult func() any
 
 	ReadAction func() bool
 
@@ -114,10 +116,21 @@ func (slr *SegmentRwLock[K]) ReadWriteWithDoubleCheck(key K, ra ReadAction, wa W
 
 type LockAction func(lock *sync.RWMutex) (any, error)
 
-func (slr *SegmentRwLock[K]) WithLock(key K, la LockAction) (any, error) {
+func (slr *SegmentRwLock[K]) WithLockManual(key K, la LockAction) (any, error) {
 	lock := slr.getLock(key)
 
 	return la(lock)
+}
+
+type AutoAction func() (any, error)
+
+func (slr *SegmentRwLock[K]) WithLock(key K, aa AutoAction) (any, error) {
+	lock := slr.getLock(key)
+
+	lock.Lock()
+	defer lock.Unlock()
+
+	return aa()
 }
 
 func (slr *SegmentRwLock[K]) PureRead(key K, call Call) {
@@ -127,6 +140,15 @@ func (slr *SegmentRwLock[K]) PureRead(key K, call Call) {
 	defer lock.RUnlock()
 
 	call()
+}
+
+func (slr *SegmentRwLock[K]) PureReadWithResult(key K, call CallResult) any {
+	lock := slr.getLock(key)
+
+	lock.RLock()
+	defer lock.RUnlock()
+
+	return call()
 }
 
 func (slr *SegmentRwLock[K]) SafeCall(key K, call Call) {
