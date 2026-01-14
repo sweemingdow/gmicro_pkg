@@ -78,7 +78,7 @@ type RpcRespWrapper[T any] struct {
 	Code    string `json:"code,omitempty"`
 	ErrDesc string `json:"errDesc,omitempty"`
 	Msg     string `json:"msg,omitempty"`
-	Resp    T      `json:"resp,omitempty"`
+	Data    T      `json:"resp,omitempty"`
 }
 
 func (resp RpcRespWrapper[T]) IsOk() bool {
@@ -91,7 +91,7 @@ func (resp RpcRespWrapper[T]) IsNotOk() bool {
 
 func (resp RpcRespWrapper[T]) OkOrErr() (T, error) {
 	if resp.IsOk() {
-		return resp.Resp, nil
+		return resp.Data, nil
 	}
 
 	var zero T
@@ -101,7 +101,7 @@ func (resp RpcRespWrapper[T]) OkOrErr() (T, error) {
 func Ok[T any](resp T) RpcRespWrapper[T] {
 	return RpcRespWrapper[T]{
 		Code: CallOk,
-		Resp: resp,
+		Data: resp,
 	}
 }
 
@@ -110,7 +110,7 @@ func ErrAll[T any](code, desc, msg string, resp T) RpcRespWrapper[T] {
 		Code:    code,
 		ErrDesc: desc,
 		Msg:     msg,
-		Resp:    resp,
+		Data:    resp,
 	}
 }
 
@@ -119,7 +119,15 @@ func ErrGeneralAll[T any](desc, msg string, resp T) RpcRespWrapper[T] {
 		Code:    GeneralErr,
 		ErrDesc: desc,
 		Msg:     msg,
-		Resp:    resp,
+		Data:    resp,
+	}
+}
+
+func ErrGeneral[T any](desc string, resp T) RpcRespWrapper[T] {
+	return RpcRespWrapper[T]{
+		Code:    GeneralErr,
+		ErrDesc: desc,
+		Data:    resp,
 	}
 }
 
