@@ -36,3 +36,16 @@ func Map[K comparable, V, E any](m map[K]V, mp Mapper[K, V, E]) map[K]E {
 
 	return newMap
 }
+
+type Predicate[K comparable, V any] func(key K, val V) bool
+
+func FindFirstIf[K comparable, V any](m map[K]V, pred Predicate[K, V]) (V, bool) {
+	for k, v := range m {
+		if pred(k, v) {
+			return v, true
+		}
+	}
+
+	var zero V
+	return zero, false
+}

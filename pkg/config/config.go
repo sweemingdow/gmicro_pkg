@@ -3,6 +3,7 @@ package config
 import (
 	"github.com/sweemingdow/gmicro_pkg/pkg/parser/yaml"
 	"github.com/sweemingdow/gmicro_pkg/pkg/utils"
+	"time"
 )
 
 type Config struct {
@@ -60,9 +61,9 @@ type NacosConfigConfig struct {
 }
 
 type NacosRegistryDiscoverConfig struct {
-	ClusterName              string `yaml:"cluster-name"`
-	GroupName                string `yaml:"group-name"`
-	DiscoverDialTimeoutMills int    `yaml:"discover-dial-timeout-mills"`
+	ClusterName         string        `yaml:"cluster-name"`
+	GroupName           string        `yaml:"group-name"`
+	DiscoverDialTimeout time.Duration `yaml:"discover-dial-timeout"`
 }
 
 type LogConfig struct {

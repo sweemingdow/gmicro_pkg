@@ -10,7 +10,6 @@ import (
 	"github.com/sweemingdow/gmicro_pkg/pkg/regdis/extra/enacos"
 	"github.com/sweemingdow/gmicro_pkg/pkg/server/srpc/rclient"
 	"sync"
-	"time"
 )
 
 type nacosArpcClientFactory struct {
@@ -41,16 +40,18 @@ func (acf *nacosArpcClientFactory) AcquireClient(serviceName string) rclient.Arp
 
 	// lazy init
 	acf.rwMu.RLock()
-	if cp, ok := acf.name2clientProxy[serviceName]; ok {
+	cp, ok := acf.name2clientProxy[serviceName]
+	acf.rwMu.RUnlock()
+
+	if ok {
 		return cp
 	}
-	acf.rwMu.RUnlock()
 
 	acf.rwMu.Lock()
 	defer acf.rwMu.Unlock()
 
 	// check again
-	if cp, ok := acf.name2clientProxy[serviceName]; ok {
+	if cp, ok = acf.name2clientProxy[serviceName]; ok {
 		return cp
 	}
 
@@ -60,7 +61,7 @@ func (acf *nacosArpcClientFactory) AcquireClient(serviceName string) rclient.Arp
 		acf.discovery,
 		enacos.PkgDiscoveryExtraParam(acf.regDisCfg.ClusterName, acf.regDisCfg.GroupName),
 		acf.lb,
-		time.Duration(acf.regDisCfg.DiscoverDialTimeoutMills)*time.Millisecond,
+		acf.regDisCfg.DiscoverDialTimeout,
 	)
 
 	if err != nil {
