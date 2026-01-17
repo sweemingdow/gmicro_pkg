@@ -25,6 +25,30 @@ func ToSli[K comparable, V any](m map[K]V) []V {
 	return sli
 }
 
+func ToSliWithMap[K comparable, V, E any](m map[K]V, mapper Mapper[K, V, E]) []E {
+	sli := make([]E, len(m))
+	idx := 0
+
+	for k, v := range m {
+		sli[idx] = mapper(k, v)
+		idx++
+	}
+
+	return sli
+}
+
+func KeyToSli[K comparable, V any](m map[K]V) []K {
+	sli := make([]K, len(m))
+	idx := 0
+
+	for k, _ := range m {
+		sli[idx] = k
+		idx++
+	}
+
+	return sli
+}
+
 type Mapper[K, T, E any] func(key K, val T) E
 
 func Map[K comparable, V, E any](m map[K]V, mp Mapper[K, V, E]) map[K]E {
