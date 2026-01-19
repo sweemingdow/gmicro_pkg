@@ -152,23 +152,26 @@ func (b *Booter) StartAndServe(ready ReadyForRouterMount) {
 
 	lg.Debug().Msg("component stage completed")
 
+	var notReady bool
 	if ready != nil {
 		router, err := ready(ac)
 		if err != nil {
 			ec <- err
-			return
+			notReady = true
+		} else {
+			ac.routeBinder = router
+			notReady = false
 		}
-
-		ac.routeBinder = router
 	}
 
-	// 最后执行: ServerStage
-	if err := b.stageRun("Server", ac, b.serverStageOptions); err != nil {
-		ec <- err
-		return
+	if !notReady {
+		// 最后执行: ServerStage
+		if err := b.stageRun("Server", ac, b.serverStageOptions); err != nil {
+			ec <- err
+		} else {
+			lg.Debug().Msg("server stage completed")
+		}
 	}
-
-	lg.Debug().Msg("server stage completed")
 
 	graceful.ListenExitSignal(ec)
 

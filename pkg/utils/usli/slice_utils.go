@@ -102,6 +102,15 @@ func ToMap[T any, K comparable, V any](src []T, km KeyMapper[T, K], vm ValueMapp
 	return m
 }
 
+func ToMapAir[T comparable](src []T) map[T]struct{} {
+	m := make(map[T]struct{}, len(src))
+	for _, t := range src {
+		m[t] = struct{}{}
+	}
+
+	return m
+}
+
 func ToItMap[T any, K comparable](src []T, km KeyMapper[T, K]) map[K]T {
 	return ToMap(
 		src,
