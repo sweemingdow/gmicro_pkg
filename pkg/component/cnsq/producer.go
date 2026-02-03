@@ -25,6 +25,8 @@ func NewNsqProducer(cfg NsqPdConfig) (*NsqProducer, error) {
 		return nil, err
 	}
 
+	pd.SetLogger(newProduceAdaptLogger(), nsq.LogLevelInfo)
+
 	return &NsqProducer{
 		pd: pd,
 	}, nil
@@ -66,7 +68,7 @@ func (npd *NsqProducer) OnDispose(ctx context.Context) error {
 	case <-ctx.Done():
 		return ctx.Err()
 	case <-stopped:
-		lg := mylog.AppLogger()
+		lg := mylog.GetStopMarkLogger()
 		lg.Info().Msg("nsq producer stopped successfully")
 		return nil
 	}

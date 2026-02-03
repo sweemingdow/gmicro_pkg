@@ -88,7 +88,7 @@ func (nar *nacosAutoRegistry) OnDispose(_ context.Context) error {
 		return err
 	}
 
-	lg := mylog.AppLoggerWithStop()
+	lg := mylog.GetStopMarkLogger()
 	lg.Info().Msg("instance had be deregister in nacos")
 
 	return nil

@@ -82,7 +82,7 @@ func NewArpcClientProxy(
 	// start watch
 	defer cp.doWatch()
 
-	lg := mylog.AppLoggerWithInit()
+	lg := mylog.GetInitMarkerLogger()
 	if err != nil {
 		lg.Error().
 			Stack().
@@ -266,7 +266,7 @@ func (acp *arpcClientProxy) doWatch() {
 			Extra:       acp.extraMap,
 		},
 		func(instances []*regdis.Instance, err error) {
-			lg := mylog.AppLoggerWithListen()
+			lg := mylog.GetListenerMarkLogger()
 
 			if err != nil {
 				lg.Error().
@@ -285,7 +285,7 @@ func (acp *arpcClientProxy) doWatch() {
 	)
 
 	if err != nil {
-		lg := mylog.AppLoggerWithListen()
+		lg := mylog.GetListenerMarkLogger()
 
 		lg.Error().Stack().Err(err).Str("service_name", acp.serviceName).Msgf("watch server instance failed")
 	}
@@ -296,7 +296,7 @@ func (acp *arpcClientProxy) replaceAllClients(instances []*regdis.Instance) {
 		return
 	}
 
-	lg := mylog.AppLoggerWithStop()
+	lg := mylog.GetListenerMarkLogger()
 
 	// create firstly, outside the lock
 	newInsSli := make([]*arpcClientWrap, 0, len(instances))
@@ -406,7 +406,7 @@ func (acp *arpcClientProxy) modifyClients(instances []*regdis.Instance) {
 		cli.close()
 	}
 
-	lg := mylog.AppLoggerWithListen()
+	lg := mylog.GetListenerMarkLogger()
 
 	// create new client
 	for _, ins := range beCreatedIns {

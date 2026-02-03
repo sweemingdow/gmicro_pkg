@@ -11,7 +11,7 @@ type logCtxKey struct {
 
 func ModuleLoggerInject(module string) func(c *fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
-		c.Locals(logCtxKey{}, mylog.GetLogger(module))
+		c.Locals(logCtxKey{}, mylog.GetDecoLogger())
 
 		return c.Next()
 	}
@@ -24,5 +24,5 @@ func GetLoggerFromFiberCtx(c *fiber.Ctx) zerolog.Logger {
 	}
 
 	// fallback
-	return mylog.AppLogger()
+	return mylog.GetDecoLogger().GetLogger()
 }

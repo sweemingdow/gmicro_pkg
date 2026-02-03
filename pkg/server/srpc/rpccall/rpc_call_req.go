@@ -2,6 +2,7 @@ package rpccall
 
 import (
 	"github.com/rs/zerolog"
+	"github.com/sweemingdow/gmicro_pkg/pkg/mylog"
 	"github.com/sweemingdow/gmicro_pkg/pkg/utils"
 	"time"
 )
@@ -46,6 +47,6 @@ func CreateI18nReq[T any](i18nTag string, req T) RpcReqWrapper[T] {
 	return CreateReqAll[T]("", i18nTag, req)
 }
 
-func LoggerWrapWithReq[T any](req RpcReqWrapper[T], lg zerolog.Logger) zerolog.Logger {
-	return lg.With().Str("req_id", req.ReqId).Logger()
+func LoggerWrapWithReq[T any](req RpcReqWrapper[T], dl *mylog.DecoLogger) zerolog.Logger {
+	return dl.GetLogger().With().Str("req_id", req.ReqId).Logger()
 }

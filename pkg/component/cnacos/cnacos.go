@@ -103,7 +103,7 @@ func (nc *NacosClient) OnDispose(ctx context.Context) error {
 		nc.cCli.CloseClient()
 	}
 
-	lg := mylog.AppLoggerWithStop()
+	lg := mylog.GetStopMarkLogger()
 	lg.Info().Msgf("nacos client stopped successfully")
 
 	return nil

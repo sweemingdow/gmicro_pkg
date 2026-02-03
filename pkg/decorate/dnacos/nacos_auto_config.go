@@ -140,7 +140,7 @@ func (nac *nacosAutoConfiguration) OnDispose(ctx context.Context) error {
 		return errors.Join(errs...)
 	}
 
-	lg := mylog.AppLoggerWithStop()
+	lg := mylog.GetStopMarkLogger()
 	lg.Info().Msg("nacos configuration stopped successfully")
 
 	return nil
@@ -155,7 +155,7 @@ func IsDefaultDynamicConfig(dataId string) bool {
 }
 
 func LogWhenReceived(dataId, groupName, data string, isStatic, firstLoad bool) zerolog.Logger {
-	lg := mylog.AppLoggerWithListen()
+	lg := mylog.GetListenerMarkLogger()
 
 	if isStatic {
 		lg.Info().Str("data_id", dataId).Str("group_name", groupName).Str("data", data).Msg("receive static config data")

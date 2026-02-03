@@ -4,17 +4,16 @@ import (
 	"fmt"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/pkgerrors"
-	"github.com/sweemingdow/gmicro_pkg/pkg/app"
 	"github.com/sweemingdow/gmicro_pkg/pkg/config"
+	"github.com/sweemingdow/gmicro_pkg/pkg/lifetime"
 	"github.com/sweemingdow/gmicro_pkg/pkg/utils"
-	"github.com/sweemingdow/log_remote_writer/pkg/writer"
-	"github.com/sweemingdow/log_remote_writer/pkg/writer/tcpwriter"
-	"gopkg.in/natefinch/lumberjack.v2"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 	"strconv"
 	"sync/atomic"
+	"time"
 )
 
 var (
@@ -22,54 +21,69 @@ var (
 	hadInit atomic.Bool
 )
 
+const defaultLoggerName = "appLogger"
+
+type stdLogWriter struct {
+}
+
+func (w stdLogWriter) Write(p []byte) (n int, err error) {
+	return fmt.Fprintf(os.Stderr, "%s %s", utils.Fmt(time.Now(), utils.ProgramFmt), p)
+}
+
 func init() {
 	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 	zerolog.TimeFieldFormat = utils.ProgramFmt
+
+	log.SetFlags(0)
+	log.SetOutput(stdLogWriter{})
 }
 
 type LogFileNameGenerator func() string
 
-func InitLogger(logCfg config.LogConfig, colorfulStdout bool, appName string, nameGenFunc LogFileNameGenerator) writer.RemoteWriter {
+type LogLifetimeWriter interface {
+	lifetime.LifeCycle
+	LogWriter
+}
+
+func InitLogger(port int, cfg *config.Config, colorfulStdout bool, appName string, nameGenFunc LogFileNameGenerator) LogLifetimeWriter {
 	if !hadInit.CompareAndSwap(false, true) {
 		panic("already initialized")
 	}
 
-	ll, err := zerolog.ParseLevel(logCfg.Level)
+	ll, err := zerolog.ParseLevel(cfg.LogCfg.Level)
+	zerolog.SetGlobalLevel(ll)
 	if err != nil {
 		panic(fmt.Sprintf("parse log level failed:%v", err))
 	}
 
-	setModuleDefaultLevel(ll)
-
 	var (
-		writers = make([]io.Writer, 0, 3)
-		rootLog zerolog.Logger
+		stdWriter = createStdoutWriter(colorfulStdout)
+		writers   = make([]LogWriter, 0, 1)
+		rootLog   zerolog.Logger
 	)
 
-	writers = append(writers, createStdoutWriter(colorfulStdout))
+	writers = append(
+		writers,
+		createFileWriter(port, cfg, appName, nameGenFunc),
+		createTcpLogWriter(cfg.LogCfg.TcpLogWriterCfg),
+	)
 
-	writers = append(writers, createFileWriter(logCfg.FileLogCfg, appName, nameGenFunc))
-
-	remoteWriter := createRemoteWriter(logCfg.RemoteLogCfg)
-	writers = append(writers, remoteWriter)
-
+	lwProxy := createLogWriterProxy(writers, cfg.LogCfg.LogAsyncCfg)
 	rootLog = zerolog.
-		New(zerolog.MultiLevelWriter(writers...)).
-		Level(ll).
+		New(zerolog.MultiLevelWriter(stdWriter, lwProxy)).
 		With().
+		Caller().
 		Timestamp().
 		Int("pid", os.Getpid()).
+		Str("app_name", cfg.AppCfg.AppName).
+		Str("mip", utils.GetLocalIp()).
 		Logger()
 
 	_root = rootLog
 
-	// add application main logger
-	AddModuleLogger("appLogger")
+	NewDecoLogger(defaultLoggerName)
 
-	// add application monitor logger
-	AddModuleLogger("monitorLogger")
-
-	return remoteWriter
+	return lwProxy
 }
 
 func createStdoutWriter(colorfulStdout bool) io.Writer {
@@ -84,21 +98,15 @@ func createStdoutWriter(colorfulStdout bool) io.Writer {
 	}
 }
 
-func createFileWriter(fileCfg config.FileLogConfig, appName string, nameGenFunc LogFileNameGenerator) io.Writer {
+func createFileWriter(port int, cfg *config.Config, appName string, nameGenFunc LogFileNameGenerator) LogWriter {
+	fileCfg := cfg.LogCfg.FileLogCfg
+
 	var logNamePaths []string
 	if nameGenFunc != nil {
 		logNamePaths = append(logNamePaths, fileCfg.FilePath, appName)
 		logNamePaths = append(logNamePaths, nameGenFunc())
 		logNamePaths = append(logNamePaths, "point.log")
 	} else {
-		var port int
-
-		ta := app.GetTheApp()
-		port = ta.GetHttpPort()
-		if port == 0 {
-			port = ta.GetRpcPort()
-		}
-
 		logNamePaths = []string{
 			fileCfg.FilePath,
 			appName,
@@ -107,32 +115,64 @@ func createFileWriter(fileCfg config.FileLogConfig, appName string, nameGenFunc 
 		}
 	}
 
-	return &lumberjack.Logger{
-		Filename:   filepath.Join(logNamePaths...),
-		MaxSize:    fileCfg.MaxFileSize,
-		MaxAge:     fileCfg.HistoryDays,
-		MaxBackups: fileCfg.MaxBackup,
-		Compress:   fileCfg.Compress,
-		LocalTime:  true,
-	}
+	return NewFileLogWriter(cfg.LogCfg.FileLogCfg, filepath.Join(logNamePaths...))
 }
 
-func createRemoteWriter(remoteCfg config.RemoteLogConfig) writer.RemoteWriter {
-	return tcpwriter.New(tcpwriter.TcpRemoteConfig{
-		Host:                   remoteCfg.Host,
-		Port:                   remoteCfg.Port,
-		ReconnectMaxDelayMills: remoteCfg.ReconnectMaxDelayMills,
-		QueueSize:              remoteCfg.QueueSize,
-		StopTimeoutMills:       remoteCfg.StopTimeoutMills,
-		MustConnectedInInit:    remoteCfg.MustConnectedInInit,
-		BatchQuantitativeSize:  remoteCfg.BatchQuantitativeSize,
-		BatchTimingMills:       remoteCfg.BatchTimingMills,
-		Debug:                  remoteCfg.Debug,
+func createTcpLogWriter(cfg config.TcpLogWriterConfig) LogWriter {
+	return NewTcpLogWriter(TcpLogWriterConfig{
+		Host:                cfg.Host,
+		Port:                cfg.Port,
+		KeepAlive:           cfg.KeepAlive,
+		ReconnectMaxDelay:   cfg.ReconnectMaxDelay,
+		DialTimeout:         cfg.DialTimeout,
+		WriteTimeout:        cfg.WriteTimeout,
+		Debug:               cfg.Debug,
+		MustConnectedInInit: cfg.MustConnectedInInit,
+	})
+}
+
+func createLogWriterProxy(writers []LogWriter, asyncCfg config.LogAsyncConfig) LogLifetimeWriter {
+	return NewLogWriterProxy(writers, LogAsyncConfig{
+		QueueSize:        asyncCfg.QueueSize,
+		QuantitativeSize: asyncCfg.QuantitativeSize,
+		Timing:           asyncCfg.Timing,
+		StopTimeout:      asyncCfg.StopTimeout,
+		FlushWorkers:     asyncCfg.FlushWorkers,
+		Debug:            asyncCfg.Debug,
+		ErrHandler:       nil,
 	})
 }
 
 type LogCreator func(root zerolog.Logger) zerolog.Logger
 
-func newLogger(lc LogCreator) zerolog.Logger {
+func NewLogger(lc LogCreator) zerolog.Logger {
 	return lc(_root)
+}
+
+func Trace() *zerolog.Event {
+	return GetDecoLogger().Trace()
+}
+
+func Debug() *zerolog.Event {
+	return GetDecoLogger().Debug()
+}
+
+func Info() *zerolog.Event {
+	return GetDecoLogger().Info()
+}
+
+func Warn() *zerolog.Event {
+	return GetDecoLogger().Warn()
+}
+
+func Error() *zerolog.Event {
+	return GetDecoLogger().Error()
+}
+
+func Fatal() *zerolog.Event {
+	return GetDecoLogger().Fatal()
+}
+
+func Panic() *zerolog.Event {
+	return GetDecoLogger().Panic()
 }

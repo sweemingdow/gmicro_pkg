@@ -40,7 +40,7 @@ func (rc *RedisClient) OnCreated(ec chan<- error) {
 		return
 	}
 
-	lg := mylog.AppLogger()
+	lg := mylog.GetInitMarkerLogger()
 	lg.Info().Msg("int redis client successfully")
 }
 

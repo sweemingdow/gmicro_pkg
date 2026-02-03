@@ -87,7 +87,7 @@ func (fhs *FiberHttpServer) GetFiber() *fiber.App {
 }
 
 func (fhs *FiberHttpServer) OnCreated(ec chan<- error) {
-	lg := mylog.AppLoggerWithInit()
+	lg := mylog.GetInitMarkerLogger()
 	lg.Debug().Msgf("fiber http server start now, port:%d", fhs.port)
 
 	go func() {
@@ -106,7 +106,7 @@ func (fhs *FiberHttpServer) OnDispose(ctx context.Context) error {
 		return nil
 	}
 
-	lg := mylog.AppLoggerWithStop()
+	lg := mylog.GetStopMarkLogger()
 	lg.Debug().Msg("fiber http server stop now")
 
 	// 解决fiber停机经常超时, 卡住其他资源无法释放问题

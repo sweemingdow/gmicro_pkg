@@ -2,83 +2,85 @@ package mylog
 
 import (
 	"github.com/rs/zerolog"
-	"github.com/sweemingdow/gmicro_pkg/pkg/app"
+	"sync"
 )
 
-func NewLogger(module string) zerolog.Logger {
-	return newLogger(func(root zerolog.Logger) zerolog.Logger {
-		return root.With().Caller().Str("logger", module).Logger()
-	})
+var (
+	rw              sync.RWMutex
+	name2logger     = make(map[string]*DecoLogger, 4)
+	emptyDecoLogger = func() *DecoLogger {
+		dl := &DecoLogger{
+			name: "emptyLogger",
+			lg:   zerolog.Nop(),
+		}
+
+		dl.ll.Store(uint32(zerolog.NoLevel))
+		return dl
+	}()
+)
+
+func NewDecoLogger(name string) *DecoLogger {
+	rw.RLock()
+	dl, ok := name2logger[name]
+	rw.RUnlock()
+	if ok {
+		return dl
+	}
+
+	rw.Lock()
+	defer rw.Unlock()
+
+	dl, ok = name2logger[name]
+	if ok {
+		return dl
+	}
+
+	gll := zerolog.GlobalLevel()
+
+	dl = &DecoLogger{
+		name: name,
+		lg: NewLogger(func(root zerolog.Logger) zerolog.Logger {
+			return root.With().Str("logger", name).Logger()
+		}),
+	}
+	dl.ll.Store(uint32(gll))
+
+	name2logger[name] = dl
+	return dl
 }
 
-func NewFrameLogger(module string, frame int) zerolog.Logger {
-	return newLogger(func(root zerolog.Logger) zerolog.Logger {
-		return root.With().CallerWithSkipFrameCount(frame).Str("logger", module).Logger()
-	})
-}
+func GetDecoLogger() *DecoLogger {
+	rw.RLock()
+	dl, ok := name2logger[defaultLoggerName]
+	rw.RUnlock()
 
-func NewFrameLoggerWithMeta(module string, frame int) zerolog.Logger {
-	return newLogger(func(root zerolog.Logger) zerolog.Logger {
-		return wrapMeta(root.With().CallerWithSkipFrameCount(frame).Str("logger", module).Logger())
-	})
-}
+	if ok {
+		return dl
+	}
 
-func NewLoggerWithMeta(module string) zerolog.Logger {
-	return newLogger(func(root zerolog.Logger) zerolog.Logger {
-		return wrapMeta(root.With().Caller().Str("logger", module).Logger())
-	})
-}
-
-func wrapMeta(lg zerolog.Logger) zerolog.Logger {
-	ta := app.GetTheApp()
-	return lg.With().
-		Str("app_name", ta.GetAppName()).
-		Str("app_id", ta.GetAppId()).
-		Str("profile", ta.GetProfile()).
-		Str("host", ta.GetLocalIp()).
-		Logger()
-}
-
-func AppLogger() zerolog.Logger {
-	return GetLogger("appLogger")
-}
-
-func MonitorLogger() zerolog.Logger {
-	return GetLogger("monitorLogger")
+	return emptyDecoLogger
 }
 
 const (
 	markerKey = "marker"
 )
 
-func AttachMarker(marker string, lg zerolog.Logger) zerolog.Logger {
-	return lg.With().Str(markerKey, marker).Logger()
+func GetLoggerWrapMarker(marker string) zerolog.Logger {
+	return GetDecoLogger().GetLogger().With().Str(markerKey, marker).Logger()
 }
 
-func AppLoggerWithStop() zerolog.Logger {
-	return AttachMarker("stop", AppLogger())
+func GetInitMarkerLogger() zerolog.Logger {
+	return GetLoggerWrapMarker("init")
 }
 
-func AppLoggerWithInit() zerolog.Logger {
-	return AttachMarker("init", AppLogger())
+func GetMonitorMarkLogger() zerolog.Logger {
+	return GetLoggerWrapMarker("monitor")
 }
 
-func AppLoggerWithListen() zerolog.Logger {
-	return AttachMarker("listen", AppLogger())
+func GetStopMarkLogger() zerolog.Logger {
+	return GetLoggerWrapMarker("stop")
 }
 
-func AppLoggerWithNotify() zerolog.Logger {
-	return AttachMarker("notify", AppLogger())
-}
-
-func AppLoggerWithRpc() zerolog.Logger {
-	return AttachMarker("rpc_call", AppLogger())
-}
-
-func AppLoggerWithBind() zerolog.Logger {
-	return AttachMarker("bind", AppLogger())
-}
-
-func AppLoggerWithWriteBack() zerolog.Logger {
-	return AttachMarker("write_back", AppLogger())
+func GetListenerMarkLogger() zerolog.Logger {
+	return GetLoggerWrapMarker("listener")
 }

@@ -40,7 +40,7 @@ func (sc *SqlClient) OnCreated(ec chan<- error) {
 		ec <- err
 	}
 
-	lg := mylog.AppLogger()
+	lg := mylog.GetInitMarkerLogger()
 	lg.Info().Msg("int sql client successfully")
 }
 
@@ -73,7 +73,7 @@ func NewSqlClient(cfg SqlCfg) (*SqlClient, error) {
 		panic("only mysql supported")
 	}
 
-	conn, err := dbr.Open(cfg.Schema, dsn, &sqlLogger{})
+	conn, err := dbr.Open(cfg.Schema, dsn, newSqlLogger())
 	if err != nil {
 		return nil, err
 	}
@@ -82,8 +82,6 @@ func NewSqlClient(cfg SqlCfg) (*SqlClient, error) {
 	conn.SetConnMaxLifetime(cfg.MaxLifeTime)
 	conn.SetMaxIdleConns(cfg.MaximumIdle)
 	conn.SetConnMaxIdleTime(cfg.MaxIdleTime)
-
-	mylog.AddModuleLogger(moduleLogger)
 
 	sc := &SqlClient{
 		conn: conn,

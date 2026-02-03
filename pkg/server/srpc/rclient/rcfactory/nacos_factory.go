@@ -65,7 +65,7 @@ func (acf *nacosArpcClientFactory) AcquireClient(serviceName string) rclient.Arp
 	)
 
 	if err != nil {
-		lg := mylog.AppLogger()
+		lg := mylog.GetDecoLogger()
 		lg.Error().Stack().Err(err).Send()
 	}
 
@@ -101,7 +101,7 @@ func (acf *nacosArpcClientFactory) OnCreated(_ chan<- error) {
 }
 
 func (acf *nacosArpcClientFactory) OnDispose(ctx context.Context) error {
-	lg := mylog.AppLoggerWithStop()
+	lg := mylog.GetStopMarkLogger()
 	lg.Debug().Msg("arpc client factory stop now")
 
 	err := acf.Stop(ctx)

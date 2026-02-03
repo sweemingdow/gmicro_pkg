@@ -7,10 +7,11 @@ import (
 )
 
 const (
-	moduleLoggerName = "arpcAdaptLogger"
+	arpcAdaptLoggerName = "arpcAdaptLogger"
 )
 
 type arpcAdaptLogger struct {
+	dl *mylog.DecoLogger
 }
 
 var hadInit atomic.Bool
@@ -20,8 +21,9 @@ func InitArpcLogAdapter() {
 		return
 	}
 
-	mylog.AddModuleLogger(moduleLoggerName)
-	log.SetLogger(arpcAdaptLogger{})
+	log.SetLogger(arpcAdaptLogger{
+		dl: mylog.NewDecoLogger(arpcAdaptLoggerName),
+	})
 }
 
 func (al arpcAdaptLogger) SetLevel(lvl int) {
@@ -29,21 +31,17 @@ func (al arpcAdaptLogger) SetLevel(lvl int) {
 }
 
 func (al arpcAdaptLogger) Debug(format string, v ...interface{}) {
-	lg := mylog.GetLogger(moduleLoggerName)
-	lg.Debug().Msgf(format, v...)
+	al.dl.Debug().Msgf(format, v...)
 }
 
 func (al arpcAdaptLogger) Info(format string, v ...interface{}) {
-	lg := mylog.GetLogger(moduleLoggerName)
-	lg.Info().Msgf(format, v...)
+	al.dl.Info().Msgf(format, v...)
 }
 
 func (al arpcAdaptLogger) Warn(format string, v ...interface{}) {
-	lg := mylog.GetLogger(moduleLoggerName)
-	lg.Warn().Msgf(format, v...)
+	al.dl.Warn().Msgf(format, v...)
 }
 
 func (al arpcAdaptLogger) Error(format string, v ...interface{}) {
-	lg := mylog.GetLogger(moduleLoggerName)
-	lg.Error().Msgf(format, v...)
+	al.dl.Error().Msgf(format, v...)
 }

@@ -22,7 +22,7 @@ func main() {
 	booter.AddComponentStageOption(boot.WithRpcClientFactory(rclient.NewRoundRobinLoadBalancer()))
 
 	booter.AddServerOption(boot.WithHttpServer(func(c *fiber.Ctx, err error) error {
-		lg := mylog.AppLogger()
+		lg := mylog.GetDecoLogger()
 		lg.Info().Msg(err.Error())
 		return err
 	}))

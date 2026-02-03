@@ -8,7 +8,6 @@ import (
 	"github.com/sweemingdow/gmicro_pkg/pkg/app"
 	"github.com/sweemingdow/gmicro_pkg/pkg/cfgcenter/cfgnacos"
 	"github.com/sweemingdow/gmicro_pkg/pkg/component/cnacos"
-	"github.com/sweemingdow/gmicro_pkg/pkg/decorate/dlog"
 	"github.com/sweemingdow/gmicro_pkg/pkg/decorate/dnacos"
 	"github.com/sweemingdow/gmicro_pkg/pkg/graceful"
 	"github.com/sweemingdow/gmicro_pkg/pkg/lifetime"
@@ -138,7 +137,7 @@ func (b *Booter) StartAndServe(ready ReadyForRouterMount) {
 		log.Fatal(err)
 	}
 
-	lg := mylog.AppLoggerWithInit()
+	lg := mylog.GetInitMarkerLogger()
 
 	lg.Debug().Msgf("application is starting, app:%v", ta)
 
@@ -193,7 +192,7 @@ func (b *Booter) stageRun(name string, ctx *AppContext, options []AppOption) err
 }
 
 func (b *Booter) shutdown(ac *AppContext, exitErr error) {
-	lg := mylog.AppLoggerWithStop()
+	lg := mylog.GetStopMarkLogger()
 	lg.Error().Stack().Err(exitErr).Msg("received signal, exit now")
 
 	ta := app.GetTheApp()
@@ -237,7 +236,7 @@ func (b *Booter) shutdown(ac *AppContext, exitErr error) {
 }
 
 func exit(errs []error, aborted bool) {
-	log.Printf("app finalizer release completed, errs:%+v, aborted:%t\n", errs, aborted)
+	log.Printf("[app finalizer]: release completed, errs=%+v, aborted=%t\n", errs, aborted)
 
 	time.Sleep(16 * time.Millisecond)
 }
@@ -268,9 +267,9 @@ func WithLogger(nameGenFunc mylog.LogFileNameGenerator) AppOption {
 	return func(ac *AppContext) error {
 		ta := app.GetTheApp()
 
-		remoteWriter := mylog.InitLogger(ta.GetConfig().LogCfg, ta.IsDevProfile(), ta.GetAppName(), nameGenFunc)
+		logWriterProxy := mylog.InitLogger(ta.GetHttpPort(), ta.GetConfig(), ta.IsDevProfile(), ta.GetAppName(), nameGenFunc)
 
-		ac.finalizer.Collect("log_writer", dlog.NewLogRemoteWriter(remoteWriter))
+		ac.finalizer.Collect("log_writer", logWriterProxy)
 		return nil
 	}
 }

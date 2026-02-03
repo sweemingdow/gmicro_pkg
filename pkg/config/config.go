@@ -67,9 +67,10 @@ type NacosRegistryDiscoverConfig struct {
 }
 
 type LogConfig struct {
-	Level        string          `yaml:"level"`
-	FileLogCfg   FileLogConfig   `yaml:"file-log-config"`
-	RemoteLogCfg RemoteLogConfig `yaml:"remote-log-config"`
+	Level           string             `yaml:"level"`
+	LogAsyncCfg     LogAsyncConfig     `yaml:"log-async-config"`
+	FileLogCfg      FileLogConfig      `yaml:"file-log-config"`
+	TcpLogWriterCfg TcpLogWriterConfig `yaml:"tcp-log-writer-config"`
 }
 
 type FileLogConfig struct {
@@ -80,14 +81,22 @@ type FileLogConfig struct {
 	Compress    bool   `yaml:"compress"`
 }
 
-type RemoteLogConfig struct {
-	Host                   string `yaml:"host"`
-	Port                   int    `yaml:"port"`
-	ReconnectMaxDelayMills int    `yaml:"reconnect-max-delay-mills"`
-	QueueSize              int    `yaml:"queue-size"`
-	StopTimeoutMills       int    `yaml:"stop-timeout-mills"`
-	MustConnectedInInit    bool   `yaml:"must-connected-in-init"`
-	BatchTimingMills       int    `yaml:"batch-timing-mills"`
-	BatchQuantitativeSize  int    `yaml:"batch-quantitative-size"`
-	Debug                  bool   `yaml:"debug"`
+type LogAsyncConfig struct {
+	QueueSize        int           `yaml:"queue-size"`
+	QuantitativeSize int           `yaml:"quantitative-size"`
+	Timing           time.Duration `yaml:"timing"`
+	StopTimeout      time.Duration `yaml:"stop-timeout"`
+	FlushWorkers     int           `yaml:"flush-workers"`
+	Debug            bool          `yaml:"debug"`
+}
+
+type TcpLogWriterConfig struct {
+	Host                string        `yaml:"host"`
+	Port                int           `yaml:"port"`
+	KeepAlive           time.Duration `yaml:"keep-alive"`
+	ReconnectMaxDelay   time.Duration `yaml:"reconnect-max-delay"`
+	DialTimeout         time.Duration `yaml:"dial-timeout"`
+	WriteTimeout        time.Duration `yaml:"write-timeout"`
+	Debug               bool          `yaml:"debug"`
+	MustConnectedInInit bool          `yaml:"must-connected-in-init"`
 }

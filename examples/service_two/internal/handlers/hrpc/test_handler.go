@@ -5,7 +5,6 @@ import (
 	"github.com/lesismal/arpc"
 	"github.com/sweemingdow/gmicro_pkg/external/call/crpc/cauth"
 	"github.com/sweemingdow/gmicro_pkg/pkg/app"
-	"github.com/sweemingdow/gmicro_pkg/pkg/mylog"
 	"github.com/sweemingdow/gmicro_pkg/pkg/server/srpc"
 	"github.com/sweemingdow/gmicro_pkg/pkg/server/srpc/rpccall"
 )
@@ -18,7 +17,6 @@ type TestHandler struct {
 }
 
 func NewTestHandler() *TestHandler {
-	mylog.AddModuleLogger(TestModuleLogger)
 
 	return &TestHandler{}
 }

@@ -20,18 +20,26 @@ func DiDa(c *arpc.Context) error {
 	return c.Write(didaReply)
 }
 
+const (
+	arpcProcessLoggerName = "arpcProcessLogger"
+)
+
+var (
+	dl *mylog.DecoLogger
+)
+
 type ArpcServer struct {
 	srv  *arpc.Server
 	port int
 }
 
 func NewArpcServer(port int) *ArpcServer {
-	mylog.AddModuleLoggerWithFrame("arpcServer", 3)
-
 	rpcSrv := arpc.NewServer()
 
 	rpcSrv.Codec = JsonIterCodec{}
 	rpcSrv.Handler.SetLogTag(fmt.Sprintf("[%s]", app.GetTheApp().GetAppName()))
+
+	dl = mylog.NewDecoLogger(arpcProcessLoggerName)
 
 	return &ArpcServer{
 		srv:  rpcSrv,
@@ -44,12 +52,12 @@ func (ars *ArpcServer) GetArpcSrv() *arpc.Server {
 }
 
 func (ars *ArpcServer) OnCreated(ec chan<- error) {
-	lg := mylog.AppLogger()
+	lg := mylog.GetInitMarkerLogger()
 	lg.Debug().Msgf("arpc rpc server start now, port:%d", ars.port)
 
 	go func() {
 		if err := ars.srv.Run(fmt.Sprintf(":%d", ars.port)); err != nil {
-			ilg := mylog.AppLogger()
+			ilg := mylog.GetInitMarkerLogger()
 
 			if strings.Contains(err.Error(), "use of closed network connection") {
 				ilg.Debug().Msg("arpc rpc server run completed")
@@ -68,7 +76,7 @@ func (ars *ArpcServer) OnCreated(ec chan<- error) {
 }
 
 func (ars *ArpcServer) OnDispose(ctx context.Context) error {
-	lg := mylog.AppLogger()
+	lg := mylog.GetStopMarkLogger()
 	lg.Debug().Msg("arpc rpc server stop now")
 
 	start := time.Now()
@@ -86,8 +94,7 @@ func BindAndWriteLoggedIfError(c *arpc.Context, val any) bool {
 	if err := c.Bind(val); err != nil {
 		err = myerr.NewRpcBindError(err)
 
-		lg := mylog.AppLoggerWithBind()
-		lg.Error().Stack().Err(err).Msg("bind data failed")
+		dl.Error().Stack().Err(err).Msg("bind data failed")
 
 		return WriteLoggedIfError(c, rpccall.SimpleUnpredictableErr(err))
 	}
@@ -97,9 +104,8 @@ func BindAndWriteLoggedIfError(c *arpc.Context, val any) bool {
 
 func WriteLoggedIfError(c *arpc.Context, val any) bool {
 	if err := c.Write(val); err != nil {
-		lg := mylog.AppLoggerWithWriteBack()
 
-		lg.Error().Stack().Err(err).Any("data", val).Msg("write back data failed")
+		dl.Error().Stack().Err(err).Any("data", val).Msg("write back data failed")
 
 		return false
 	}

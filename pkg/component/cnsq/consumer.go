@@ -60,6 +60,7 @@ func NewNsqConsumer(cfg NsqCsConfig, csFactory NsqMsgConsumeFactory) (*NsqConsum
 		}
 	}()
 
+	l := newConsumerAdaptLogger()
 	for _, item := range cfg.Items {
 		csCfg := nsq.NewConfig()
 		csCfg.MaxInFlight = item.Concurrency
@@ -73,6 +74,8 @@ func NewNsqConsumer(cfg NsqCsConfig, csFactory NsqMsgConsumeFactory) (*NsqConsum
 			newErr = err
 			break
 		}
+
+		cs.SetLogger(l, nsq.LogLevelInfo)
 
 		cs.AddHandler(msgHandler{
 			topic:     item.Topic,
@@ -135,7 +138,7 @@ func (ncs *NsqConsumer) OnDispose(ctx context.Context) error {
 	case <-ctx.Done():
 		return ctx.Err()
 	case <-allDone:
-		lg := mylog.AppLogger()
+		lg := mylog.GetStopMarkLogger()
 		lg.Info().Msg("nsq consumers stopped successfully")
 		return nil
 	}
