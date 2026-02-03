@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/nsqio/go-nsq"
 	"github.com/sweemingdow/gmicro_pkg/pkg/mylog"
+	"github.com/sweemingdow/gmicro_pkg/pkg/parser/json"
 )
 
 const ProducerLifetimeTag = "nsq_producer"
@@ -39,6 +40,18 @@ type PublishParam struct {
 
 func (npd *NsqProducer) Publish(pp PublishParam) error {
 	if err := npd.pd.Publish(pp.Topic, pp.Payload); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (npd *NsqProducer) JsonPublish(topic string, val any) error {
+	data, err := json.Fmt(val)
+	if err != nil {
+		return err
+	}
+	if err = npd.pd.Publish(topic, data); err != nil {
 		return err
 	}
 
