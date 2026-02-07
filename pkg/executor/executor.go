@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	ErrHadBeClosed = errors.New("executor had be was closed")
+	ErrHadBeClosed = errors.New("executor was closed")
 )
 
 type Task func()
