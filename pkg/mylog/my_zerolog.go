@@ -3,7 +3,6 @@ package mylog
 import (
 	"fmt"
 	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/pkgerrors"
 	"github.com/sweemingdow/gmicro_pkg/pkg/config"
 	"github.com/sweemingdow/gmicro_pkg/pkg/lifetime"
 	"github.com/sweemingdow/gmicro_pkg/pkg/utils"
@@ -31,7 +30,8 @@ func (w stdLogWriter) Write(p []byte) (n int, err error) {
 }
 
 func init() {
-	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
+	//zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
+	zerolog.ErrorStackMarshaler = MarshalStackLimited
 	zerolog.TimeFieldFormat = utils.ProgramFmt
 
 	log.SetFlags(0)

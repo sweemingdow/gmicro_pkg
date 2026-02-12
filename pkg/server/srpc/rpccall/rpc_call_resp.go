@@ -1,133 +1,81 @@
 package rpccall
 
 import (
+	"fmt"
 	"github.com/rs/zerolog"
 	"github.com/sweemingdow/gmicro_pkg/pkg/myerr"
+	"github.com/sweemingdow/gmicro_pkg/pkg/response"
 )
-
-const (
-	CallOk                 = "1"
-	GeneralErr             = "0"
-	ServerUnpredictableErr = "1000" // 无法预料, 未知错误
-	ParamValidateErr       = "1100" // 参数验证失败
-)
-
-type RpcRespSimple struct {
-	Code    string `json:"code,omitempty"`
-	ErrDesc string `json:"errDesc,omitempty"`
-	Msg     string `json:"msg,omitempty"`
-}
-
-func (resp RpcRespSimple) IsOk() bool {
-	return resp.Code == CallOk
-}
-
-func (resp RpcRespSimple) IsNotOk() bool {
-	return !resp.IsOk()
-}
-
-func SimpleOk() RpcRespSimple {
-	return RpcRespSimple{
-		Code: CallOk,
-	}
-}
-
-func SimpleErrAll(code, desc, msg string) RpcRespSimple {
-	return RpcRespSimple{
-		Code:    code,
-		ErrDesc: desc,
-		Msg:     msg,
-	}
-
-}
-
-func SimpleErrDesc(desc string) RpcRespSimple {
-	return RpcRespSimple{
-		Code:    GeneralErr,
-		ErrDesc: desc,
-	}
-}
-
-func SimpleErrCodeDesc(code, desc string) RpcRespSimple {
-	return RpcRespSimple{
-		Code:    code,
-		ErrDesc: desc,
-	}
-}
-
-func SimpleErrDescMsg(desc, msg string) RpcRespSimple {
-	return SimpleErrAll(GeneralErr, desc, msg)
-}
-
-func SimpleUnpredictableErr(err error) RpcRespSimple {
-	return RpcRespSimple{
-		Code:    ServerUnpredictableErr,
-		ErrDesc: err.Error(),
-	}
-}
-
-func SimpleParamValidateErr(desc, msg string) RpcRespSimple {
-	return RpcRespSimple{
-		Code:    ParamValidateErr,
-		ErrDesc: desc,
-		Msg:     msg,
-	}
-}
 
 type RpcRespWrapper[T any] struct {
 	Code    string `json:"code,omitempty"`
-	ErrDesc string `json:"errDesc,omitempty"`
-	Msg     string `json:"msg,omitempty"`
-	Data    T      `json:"resp,omitempty"`
+	ErrDesc string `json:"errDesc,omitempty"` // 调试描述
+	Msg     string `json:"msg,omitempty"`     // 展示信息
+	Data    T      `json:"data,omitempty"`
 }
 
-func (resp RpcRespWrapper[T]) IsOk() bool {
-	return resp.Code == CallOk
+func (r RpcRespWrapper[T]) IsOk() bool {
+	return r.Code == response.RpcOk
 }
 
-func (resp RpcRespWrapper[T]) IsNotOk() bool {
-	return !resp.IsOk()
+func (r RpcRespWrapper[T]) IsNotOk() bool {
+	return !r.IsOk()
 }
 
-func (resp RpcRespWrapper[T]) OkOrErr() (T, error) {
-	if resp.IsOk() {
-		return resp.Data, nil
+func (r RpcRespWrapper[T]) String() string {
+	return fmt.Sprintf("RpcRespWrapper[code=%s, desc=%s, msg=%s, data=%+v]", r.Code, r.ErrDesc, r.Msg, r.Data)
+}
+
+func (r RpcRespWrapper[T]) OkOrErr() (T, myerr.RpcRespError) {
+	if r.IsOk() {
+		return r.Data, nil
 	}
 
-	var zero T
-	return zero, myerr.NewRpcRespError(resp.Code, resp.ErrDesc, resp.Msg)
+	return r.Data, myerr.NewRpcRespError(r.Code, r.ErrDesc, r.Msg, r.Data)
 }
 
-func Ok[T any](resp T) RpcRespWrapper[T] {
+func Ok[T any](data T) RpcRespWrapper[T] {
 	return RpcRespWrapper[T]{
-		Code: CallOk,
-		Data: resp,
+		Code: response.RpcOk,
+		Data: data,
 	}
 }
 
-func ErrAll[T any](code, desc, msg string, resp T) RpcRespWrapper[T] {
+func JustOk() RpcRespWrapper[any] {
+	return RpcRespWrapper[any]{
+		Code: response.RpcOk,
+	}
+}
+
+func JustErr() RpcRespWrapper[any] {
+	return RpcRespWrapper[any]{
+		Code: response.RpcGenErr,
+	}
+}
+
+func ErrAll[T any](code, desc, msg string, data T) RpcRespWrapper[T] {
 	return RpcRespWrapper[T]{
 		Code:    code,
 		ErrDesc: desc,
 		Msg:     msg,
-		Data:    resp,
+		Data:    data,
 	}
 }
 
-func ErrGeneralAll[T any](desc, msg string, resp T) RpcRespWrapper[T] {
+func GenErrAll[T any](desc, msg string, data T) RpcRespWrapper[T] {
 	return RpcRespWrapper[T]{
-		Code:    GeneralErr,
+		Code:    response.RpcOk,
 		ErrDesc: desc,
 		Msg:     msg,
-		Data:    resp,
+		Data:    data,
 	}
 }
 
-func ErrGeneral[T any](desc string, resp T) RpcRespWrapper[T] {
+func GenErr[T any](desc string, data T) RpcRespWrapper[T] {
 	return RpcRespWrapper[T]{
-		Code:    GeneralErr,
+		Code:    response.RpcGenErr,
 		ErrDesc: desc,
-		Data:    resp,
+		Data:    data,
 	}
 }
 

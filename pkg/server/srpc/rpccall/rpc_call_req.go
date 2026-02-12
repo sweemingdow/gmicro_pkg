@@ -14,6 +14,14 @@ type RpcReqWrapper[T any] struct {
 	Req       T      `json:"req,omitempty"`
 }
 
+func (r RpcReqWrapper[T]) BindLogger(dl *mylog.DecoLogger) zerolog.Logger {
+	if r.ReqId != "" {
+		return dl.GetLogger().With().Str("req_id", r.ReqId).Logger()
+	}
+
+	return dl.GetLogger()
+}
+
 func CreateIdReq[T any](reqId string, req T) RpcReqWrapper[T] {
 	if reqId == "" {
 		reqId = utils.RandStr(32)
@@ -45,8 +53,4 @@ func CreateReqAll[T any](reqId, i18nTag string, req T) RpcReqWrapper[T] {
 
 func CreateI18nReq[T any](i18nTag string, req T) RpcReqWrapper[T] {
 	return CreateReqAll[T]("", i18nTag, req)
-}
-
-func LoggerWrapWithReq[T any](req RpcReqWrapper[T], dl *mylog.DecoLogger) zerolog.Logger {
-	return dl.GetLogger().With().Str("req_id", req.ReqId).Logger()
 }

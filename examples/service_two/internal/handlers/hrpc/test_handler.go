@@ -53,5 +53,5 @@ func (th *TestHandler) HandleAuth(c *arpc.Context) {
 		Uid: "9527",
 	})
 
-	srpc.WriteLoggedIfError(c, &resp)
+	srpc.WriteResp(c, &resp)
 }

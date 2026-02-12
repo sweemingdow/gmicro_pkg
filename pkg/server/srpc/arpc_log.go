@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	arpcAdaptLoggerName = "arpcAdaptLogger"
+	arpcAdaptLoggerName = "arpcAdapter"
 )
 
 type arpcAdaptLogger struct {

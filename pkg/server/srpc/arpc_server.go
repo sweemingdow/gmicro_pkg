@@ -2,11 +2,10 @@ package srpc
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/lesismal/arpc"
+	"github.com/pkg/errors"
 	"github.com/sweemingdow/gmicro_pkg/pkg/app"
-	"github.com/sweemingdow/gmicro_pkg/pkg/myerr"
 	"github.com/sweemingdow/gmicro_pkg/pkg/mylog"
 	"github.com/sweemingdow/gmicro_pkg/pkg/server/srpc/rpccall"
 	"net"
@@ -90,22 +89,22 @@ func (ars *ArpcServer) OnDispose(ctx context.Context) error {
 	return nil
 }
 
-func BindAndWriteLoggedIfError(c *arpc.Context, val any) bool {
+func ParseReq(c *arpc.Context, val any) bool {
 	if err := c.Bind(val); err != nil {
-		err = myerr.NewRpcBindError(err)
+		err = errors.Wrap(err, "parse rpc req failed")
+		dl.Error().Stack().Err(err)
 
-		dl.Error().Stack().Err(err).Msg("bind data failed")
-
-		return WriteLoggedIfError(c, rpccall.SimpleUnpredictableErr(err))
+		return WriteResp(c, rpccall.NewCodecErrResp(err))
 	}
 
 	return true
 }
 
-func WriteLoggedIfError(c *arpc.Context, val any) bool {
+func WriteResp(c *arpc.Context, val any) bool {
 	if err := c.Write(val); err != nil {
+		err = errors.Wrap(err, "write rpc resp failed")
 
-		dl.Error().Stack().Err(err).Any("data", val).Msg("write back data failed")
+		dl.Error().Stack().Err(err).Any("data", val).Msg("write rpc resp failed")
 
 		return false
 	}

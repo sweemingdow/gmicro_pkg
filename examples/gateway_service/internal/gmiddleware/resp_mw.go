@@ -22,7 +22,7 @@ func RespInterceptWhenError() fiber.ErrorHandler {
 	debug := app.GetTheApp().IsDevProfile()
 
 	return func(c *fiber.Ctx, err error) error {
-		rce, ok := myerr.DecodeRpcCallErr(err)
+		rce, ok := myerr.AsRpcCallErr(err)
 		if ok {
 			if rce.Timeout() {
 				return c.SendStatus(fasthttp.StatusGatewayTimeout)

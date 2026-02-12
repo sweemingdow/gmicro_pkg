@@ -5,8 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/sweemingdow/gmicro_pkg/pkg/myerr"
 	"github.com/sweemingdow/gmicro_pkg/pkg/mylog"
 	"github.com/sweemingdow/gmicro_pkg/pkg/parser/json"
+	"github.com/sweemingdow/gmicro_pkg/pkg/response/apiresp"
+	"net/http"
 	"sync/atomic"
 	"time"
 )
@@ -41,6 +44,7 @@ type FiberHttpServer struct {
 	fa     *fiber.App
 	port   int
 	closed atomic.Bool
+	dl     *mylog.DecoLogger
 }
 
 type HttpRouterBind func(fa *fiber.App)
@@ -66,6 +70,14 @@ func NewFiberHttpServer(cfg FiberServerConfig, errHandler fiber.ErrorHandler) *F
 		bodyLimit = defaultBodyLimit
 	}
 
+	srv := &FiberHttpServer{
+		port: cfg.Port,
+		dl:   mylog.NewDecoLogger("fiberSrv"),
+	}
+
+	if errHandler == nil {
+		errHandler = srv.handleError
+	}
 	fa := fiber.New(fiber.Config{
 		IdleTimeout:  time.Duration(idleTimeoutMills) * time.Millisecond,
 		ReadTimeout:  time.Duration(readTimeoutMills) * time.Millisecond,
@@ -76,14 +88,47 @@ func NewFiberHttpServer(cfg FiberServerConfig, errHandler fiber.ErrorHandler) *F
 		JSONDecoder:  json.Parse,
 	})
 
-	return &FiberHttpServer{
-		port: cfg.Port,
-		fa:   fa,
-	}
+	srv.fa = fa
+
+	return srv
 }
 
 func (fhs *FiberHttpServer) GetFiber() *fiber.App {
 	return fhs.fa
+}
+
+func (fhs *FiberHttpServer) handleError(c *fiber.Ctx, err error) error {
+	if e, ok := myerr.AsCodeMsgError(err); ok {
+		fhs.dl.Info().Stack().Err(e).Msg("expected codeMsgError")
+		return c.JSON(apiresp.CodeMsgResp(e.ErrCode(), e.ErrMsg()))
+	}
+
+	if e, ok := myerr.AsRpcCallError(err); ok {
+		fhs.dl.Info().Stack().Err(e).Msg("expected rpcCallError")
+		return c.JSON(apiresp.CodeMsgResp(e.ErrCode(), e.ErrMsg()))
+	}
+
+	if e, ok := myerr.AsRpcRespError(err); ok {
+		fhs.dl.Info().Stack().Err(e).Msg("expected rpcRespError")
+		return c.JSON(apiresp.CodeMsgResp(e.ErrCode(), e.ErrMsg()))
+	}
+
+	if e, ok := myerr.AsSubCodeError(err); ok {
+		fhs.dl.Info().Stack().Err(e).Msg("expected subCodeError")
+		return c.JSON(apiresp.AllResp[any](e.ErrCode(), e.SubCode(), e.ErrMsg(), nil))
+	}
+
+	var fe *fiber.Error
+	switch {
+	case errors.As(err, &fe):
+		fhs.dl.Error().Stack().Int("status_code", fe.Code).Err(err).Msg("fiber server error")
+		c.Status(fe.Code)
+		return c.SendString(fe.Message)
+	default:
+		fhs.dl.Error().Stack().Err(err).Msg("unexpected error")
+		c.Status(http.StatusInternalServerError)
+		return c.SendString(http.StatusText(http.StatusInternalServerError))
+	}
 }
 
 func (fhs *FiberHttpServer) OnCreated(ec chan<- error) {

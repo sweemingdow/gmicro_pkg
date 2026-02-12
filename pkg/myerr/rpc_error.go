@@ -1,39 +1,61 @@
 package myerr
 
 import (
-	"errors"
 	"fmt"
 	"github.com/lesismal/arpc"
+	"github.com/pkg/errors"
+	"github.com/sweemingdow/gmicro_pkg/pkg/response"
 )
 
-type RpcCallError struct {
+type RpcCallError interface {
+	CodeMsgError
+	IsTimeout() bool
+}
+
+type rpcCallError struct {
 	err     error
 	timeout bool
 }
 
 func NewRpcCallError(err error) RpcCallError {
 	timeout := err == arpc.ErrClientTimeout
-	return RpcCallError{err: err, timeout: timeout}
+
+	return rpcCallError{
+		err:     withStack(err),
+		timeout: timeout,
+	}
 }
 
-func (rce RpcCallError) Error() string {
-	return fmt.Sprintf("rpc_call_error[err:%v]", rce.err)
+func AsRpcCallError(err error) (RpcCallError, bool) {
+	var e RpcCallError
+	if errors.As(err, &e) {
+		return e, true
+	}
+
+	return e, false
 }
 
-func (rce RpcCallError) Unwrap() error {
-	return rce.err
+func (e rpcCallError) Error() string {
+	return fmt.Sprintf("rpcCallError[timeout=%t, err=%v]", e.timeout, e.err)
 }
 
-func (rce RpcCallError) Timeout() bool {
-	return rce.timeout
+func (e rpcCallError) Unwrap() error {
+	return e.err
 }
 
-func IsRpcCallErr(err error) bool {
-	var rce RpcCallError
-	return errors.As(err, &rce)
+func (e rpcCallError) ErrCode() string {
+	return response.RpcCallErr
 }
 
-func DecodeRpcCallErr(err error) (RpcCallError, bool) {
+func (e rpcCallError) ErrMsg() string {
+	return e.Error()
+}
+
+func (e rpcCallError) IsTimeout() bool {
+	return e.timeout
+}
+
+func AsRpcCallErr(err error) (RpcCallError, bool) {
 	var rce RpcCallError
 	if errors.As(err, &rce) {
 		return rce, true
@@ -42,50 +64,48 @@ func DecodeRpcCallErr(err error) (RpcCallError, bool) {
 	return rce, false
 }
 
-type RpcBindError struct {
-	err error
+type RpcRespError interface {
+	CodeMsgError
+
+	ErrDesc() string
+
+	Data() any
 }
 
-func NewRpcBindError(err error) RpcBindError {
-	return RpcBindError{err: err}
+type rpcRespError struct {
+	code string
+	desc string // 内部描述
+	msg  string // 用户可见消息
+	err  error  // origin error
+	data any
 }
 
-func (rbe RpcBindError) Error() string {
-	return fmt.Sprintf("rpc_bind_error[err:%v]", rbe.err)
-}
-
-func (rbe RpcBindError) Unwrap() error {
-	return rbe.err
-}
-
-func IsRpcBindError(err error) bool {
-	var rbe RpcBindError
-	return errors.As(err, &rbe)
-}
-
-type RpcRespError struct {
-	code    string
-	ErrDesc string
-	Msg     string
-}
-
-func NewRpcRespError(code, desc, msg string) RpcRespError {
-	return RpcRespError{
-		code:    code,
-		ErrDesc: desc,
-		Msg:     msg,
+func NewRpcRespErrorAll(code, desc, msg string, err error, data any) RpcRespError {
+	return rpcRespError{
+		code: code,
+		desc: desc,
+		msg:  msg,
+		err:  withStack(err),
+		data: data,
 	}
 }
 
-func (rre RpcRespError) Code() string {
-	return rre.code
+func NewRpcRespError(code, desc, msg string, data any) RpcRespError {
+	errMsg := desc
+	if errMsg == "" {
+		errMsg = msg
+	}
+
+	return rpcRespError{
+		code: code,
+		desc: desc,
+		msg:  msg,
+		err:  errors.New(errMsg),
+		data: data,
+	}
 }
 
-func (rre RpcRespError) Error() string {
-	return fmt.Sprintf("rpc_resp_err[code:%s, desc:%s, msg:%s]", rre.code, rre.ErrDesc, rre.Msg)
-}
-
-func DecodeRpcRespError(err error) (RpcRespError, bool) {
+func AsRpcRespError(err error) (RpcRespError, bool) {
 	var rre RpcRespError
 	if errors.As(err, &rre) {
 		return rre, true
@@ -94,27 +114,26 @@ func DecodeRpcRespError(err error) (RpcRespError, bool) {
 	return rre, false
 }
 
-type RpcParamValidateError struct {
-	ErrDesc string
-	Msg     string
+func (e rpcRespError) Unwrap() error {
+	return e.err
 }
 
-func NewRpcParamValidateError(desc, msg string) RpcParamValidateError {
-	return RpcParamValidateError{
-		ErrDesc: desc,
-		Msg:     msg,
-	}
+func (e rpcRespError) Error() string {
+	return fmt.Sprintf("rpcRespError[code=%s, desc=%s, msg=%s, err=%v]", e.code, e.desc, e.msg, e.err)
 }
 
-func (pve RpcParamValidateError) Error() string {
-	return fmt.Sprintf("rpc_param_validate_err[desc:%s, msg:%s]", pve.ErrDesc, pve.Msg)
+func (e rpcRespError) ErrCode() string {
+	return e.code
 }
 
-func DecodeRpcParamValidateError(err error) (RpcParamValidateError, bool) {
-	var pve RpcParamValidateError
-	if errors.As(err, &pve) {
-		return pve, true
-	}
+func (e rpcRespError) ErrDesc() string {
+	return e.desc
+}
 
-	return pve, false
+func (e rpcRespError) ErrMsg() string {
+	return e.msg
+}
+
+func (e rpcRespError) Data() any {
+	return e.data
 }
