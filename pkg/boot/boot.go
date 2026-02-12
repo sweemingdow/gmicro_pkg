@@ -263,11 +263,11 @@ func (b *Booter) shutdownWithHook(ac *AppContext, ctx context.Context, hooks []S
 }
 
 // 初始化日志
-func WithLogger(nameGenFunc mylog.LogFileNameGenerator) AppOption {
+func WithLogger(skipFrames, extractFrames int, nameGenFunc mylog.LogFileNameGenerator) AppOption {
 	return func(ac *AppContext) error {
 		ta := app.GetTheApp()
 
-		logWriterProxy := mylog.InitLogger(ta.GetHttpPort(), ta.GetConfig(), ta.IsDevProfile(), ta.GetAppName(), nameGenFunc)
+		logWriterProxy := mylog.InitLogger(ta.GetHttpPort(), ta.GetConfig(), ta.IsDevProfile(), ta.GetAppName(), skipFrames, extractFrames, nameGenFunc)
 
 		ac.finalizer.Collect("log_writer", logWriterProxy)
 		return nil

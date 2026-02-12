@@ -45,10 +45,13 @@ type LogLifetimeWriter interface {
 	LogWriter
 }
 
-func InitLogger(port int, cfg *config.Config, colorfulStdout bool, appName string, nameGenFunc LogFileNameGenerator) LogLifetimeWriter {
+func InitLogger(port int, cfg *config.Config, colorfulStdout bool, appName string, skipFrames, extractFrames int, nameGenFunc LogFileNameGenerator) LogLifetimeWriter {
 	if !hadInit.CompareAndSwap(false, true) {
 		panic("already initialized")
 	}
+
+	setSkipFrames(skipFrames)
+	setExtractFrames(extractFrames)
 
 	ll, err := zerolog.ParseLevel(cfg.LogCfg.Level)
 	zerolog.SetGlobalLevel(ll)

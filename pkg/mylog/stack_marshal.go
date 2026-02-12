@@ -5,10 +5,22 @@ import (
 	"github.com/sweemingdow/gmicro_pkg/pkg/myerr"
 )
 
-const (
-	skipFrames    = 1
-	extractFrames = 4
+var (
+	_skipFrames    = 3
+	_extractFrames = 6
 )
+
+func setSkipFrames(frames int) {
+	if frames > 0 {
+		_skipFrames = frames
+	}
+}
+
+func setExtractFrames(frames int) {
+	if frames > 0 {
+		_extractFrames = frames
+	}
+}
 
 func MarshalStackLimited(err error) interface{} {
 	type stackTracer interface {
@@ -18,7 +30,7 @@ func MarshalStackLimited(err error) interface{} {
 	var stackFrames = -1
 	cme, ok := myerr.AsCodeMsgError(err)
 	if ok {
-		stackFrames = extractFrames
+		stackFrames = _extractFrames
 		//err = cme.Floor()
 		err = errors.Unwrap(cme)
 	}
@@ -57,7 +69,7 @@ func MarshalStackLimited(err error) interface{} {
 	} else {
 		frames := st
 		if len(frames) > stackFrames {
-			frames = frames[skipFrames:stackFrames]
+			frames = frames[_skipFrames:stackFrames]
 		}
 		out := make([]map[string]string, 0, len(frames))
 		for _, frame := range frames {

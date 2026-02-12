@@ -196,3 +196,21 @@ func Distinct[T comparable](src []T) []T {
 
 	return result
 }
+
+type DiffFilter[T any, K comparable] func(item T) K
+
+func Diff[T any, K comparable](src []T, keys []K, df DiffFilter[T, K]) []T {
+	exclude := make(map[K]struct{}, len(keys))
+	for _, k := range keys {
+		exclude[k] = struct{}{}
+	}
+
+	newItems := make([]T, 0, len(src)-len(keys))
+	for _, item := range src {
+		if _, ok := exclude[df(item)]; !ok {
+			newItems = append(newItems, item)
+		}
+	}
+
+	return newItems
+}
