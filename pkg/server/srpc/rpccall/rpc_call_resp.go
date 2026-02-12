@@ -34,6 +34,14 @@ func (r RpcRespWrapper[T]) OkOrErr() (T, myerr.RpcRespError) {
 	return r.Data, myerr.NewRpcRespError(r.Code, r.ErrDesc, r.Msg, r.Data)
 }
 
+func (r RpcRespWrapper[T]) OkOrTake() (T, bool) {
+	if r.IsOk() {
+		return r.Data, true
+	}
+
+	return r.Data, false
+}
+
 func Ok[T any](data T) RpcRespWrapper[T] {
 	return RpcRespWrapper[T]{
 		Code: response.RpcOk,

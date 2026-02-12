@@ -66,6 +66,6 @@ func (e apiError) ErrMsg() string {
 	return e.msg
 }
 
-func (e apiError) UnWrap() error {
+func (e apiError) Unwrap() error {
 	return e.err
 }

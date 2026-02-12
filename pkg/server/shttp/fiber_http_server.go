@@ -2,14 +2,14 @@ package shttp
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"github.com/pkg/errors"
 	"github.com/sweemingdow/gmicro_pkg/pkg/myerr"
 	"github.com/sweemingdow/gmicro_pkg/pkg/mylog"
 	"github.com/sweemingdow/gmicro_pkg/pkg/parser/json"
+	"github.com/sweemingdow/gmicro_pkg/pkg/response"
 	"github.com/sweemingdow/gmicro_pkg/pkg/response/apiresp"
-	"net/http"
 	"sync/atomic"
 	"time"
 )
@@ -98,24 +98,24 @@ func (fhs *FiberHttpServer) GetFiber() *fiber.App {
 }
 
 func (fhs *FiberHttpServer) handleError(c *fiber.Ctx, err error) error {
-	if e, ok := myerr.AsCodeMsgError(err); ok {
-		fhs.dl.Info().Stack().Err(e).Msg("expected codeMsgError")
-		return c.JSON(apiresp.CodeMsgResp(e.ErrCode(), e.ErrMsg()))
-	}
-
-	if e, ok := myerr.AsRpcCallError(err); ok {
-		fhs.dl.Info().Stack().Err(e).Msg("expected rpcCallError")
-		return c.JSON(apiresp.CodeMsgResp(e.ErrCode(), e.ErrMsg()))
-	}
-
 	if e, ok := myerr.AsRpcRespError(err); ok {
 		fhs.dl.Info().Stack().Err(e).Msg("expected rpcRespError")
-		return c.JSON(apiresp.CodeMsgResp(e.ErrCode(), e.ErrMsg()))
+		return c.JSON(apiresp.AllResp(response.ErrForSubWithInnerCall, e.ErrCode(), e.ErrMsg(), e.Data()))
 	}
 
 	if e, ok := myerr.AsSubCodeError(err); ok {
 		fhs.dl.Info().Stack().Err(e).Msg("expected subCodeError")
-		return c.JSON(apiresp.AllResp[any](e.ErrCode(), e.SubCode(), e.ErrMsg(), nil))
+		return c.JSON(apiresp.GenSubResp[any](e.SubCode(), e.ErrMsg()))
+	}
+
+	if e, ok := myerr.AsRpcCallError(err); ok {
+		fhs.dl.Info().Stack().Err(e).Msg("expected rpcCallError")
+		return c.JSON(apiresp.CodeMsgResp(e.ErrCode(), response.ApiCode2text(e.ErrCode())))
+	}
+
+	if e, ok := myerr.AsCodeMsgError(err); ok {
+		fhs.dl.Error().Stack().Err(err).Msg("expected codeMsgError")
+		return c.JSON(apiresp.CodeMsgResp(e.ErrCode(), e.ErrMsg()))
 	}
 
 	var fe *fiber.Error
@@ -125,9 +125,11 @@ func (fhs *FiberHttpServer) handleError(c *fiber.Ctx, err error) error {
 		c.Status(fe.Code)
 		return c.SendString(fe.Message)
 	default:
-		fhs.dl.Error().Stack().Err(err).Msg("unexpected error")
+		/*fhs.dl.Error().Stack().Err(err).Msg("unexpected error")
 		c.Status(http.StatusInternalServerError)
-		return c.SendString(http.StatusText(http.StatusInternalServerError))
+		return c.SendString(http.StatusText(http.StatusInternalServerError))*/
+		fhs.dl.Error().Stack().Err(err).Msg("unexpected error")
+		return c.JSON(apiresp.AllResp[any](response.UnpredictableErr, "", response.ApiCode2text(response.UnpredictableErr), nil))
 	}
 }
 

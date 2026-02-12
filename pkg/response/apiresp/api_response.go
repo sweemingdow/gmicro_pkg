@@ -38,7 +38,7 @@ func GenResp(msg string) ApiRWrapper[any] {
 
 func GenSubResp(subCode, msg string) ApiRWrapper[any] {
 	return ApiRWrapper[any]{
-		Code:    response.ApiGenErr,
+		Code:    response.ErrForSub,
 		SubCode: subCode,
 		Msg:     msg,
 		Ts:      time.Now().UnixMilli(),

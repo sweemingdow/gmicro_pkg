@@ -6,20 +6,20 @@ import (
 )
 
 var (
-	_skipFrames    = 3
+	_skipFrames    = 2
 	_extractFrames = 6
 )
 
+const (
+	defaultExtractFrames = 4
+)
+
 func setSkipFrames(frames int) {
-	if frames > 0 {
-		_skipFrames = frames
-	}
+	_skipFrames = frames
 }
 
 func setExtractFrames(frames int) {
-	if frames > 0 {
-		_extractFrames = frames
-	}
+	_extractFrames = frames
 }
 
 func MarshalStackLimited(err error) interface{} {
@@ -27,12 +27,20 @@ func MarshalStackLimited(err error) interface{} {
 		StackTrace() errors.StackTrace
 	}
 
-	var stackFrames = -1
-	cme, ok := myerr.AsCodeMsgError(err)
+	var (
+		stackFrames    = -1
+		defaultMarshal bool
+	)
+	_, ok := myerr.AsCodeMsgError(err)
 	if ok {
 		stackFrames = _extractFrames
+		defaultMarshal = false
+
 		//err = cme.Floor()
-		err = errors.Unwrap(cme)
+		//err = errors.Unwrap(cme)
+	} else {
+		stackFrames = defaultExtractFrames
+		defaultMarshal = true
 	}
 
 	var sterr stackTracer
@@ -55,33 +63,25 @@ func MarshalStackLimited(err error) interface{} {
 	st := sterr.StackTrace()
 	s := &state{}
 
-	if stackFrames == -1 {
-		out := make([]map[string]string, 0, len(st))
-		for _, frame := range st {
-			out = append(out, map[string]string{
-				"file":     frameField(frame, s, 's'),
-				"line":     frameField(frame, s, 'd'),
-				"function": frameField(frame, s, 'n'),
-			})
-		}
-
-		return out
-	} else {
-		frames := st
-		if len(frames) > stackFrames {
+	frames := st
+	if len(frames) > stackFrames {
+		if defaultMarshal {
+			frames = frames[:stackFrames]
+		} else {
 			frames = frames[_skipFrames:stackFrames]
 		}
-		out := make([]map[string]string, 0, len(frames))
-		for _, frame := range frames {
-			out = append(out, map[string]string{
-				"file":     frameField(frame, s, 's'),
-				"line":     frameField(frame, s, 'd'),
-				"function": frameField(frame, s, 'n'),
-			})
-		}
-
-		return out
 	}
+
+	out := make([]map[string]string, 0, len(frames))
+	for _, frame := range frames {
+		out = append(out, map[string]string{
+			"file":     frameField(frame, s, 's'),
+			"line":     frameField(frame, s, 'd'),
+			"function": frameField(frame, s, 'n'),
+		})
+	}
+
+	return out
 }
 
 type state struct {

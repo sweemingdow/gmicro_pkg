@@ -5,6 +5,10 @@ const (
 	ApiOk = "1"
 
 	ApiGenErr = "0"
+
+	ErrForSubWithInnerCall = "98" // 内部调用需要根据subCode来判断
+
+	ErrForSub = "99" // 需要根据subCode来判断
 )
 
 const (
@@ -16,9 +20,11 @@ const (
 
 	UnAuthErr = "9996"
 
-	RpcCallErr = "9995"
+	NoPermission = "9995"
 
-	RpcRespErr = "9994"
+	RpcCallErr = "9989"
+
+	RpcRespErr = "9988"
 
 	// 请求验证不通过
 	VerifyErr = "2000"
@@ -44,6 +50,7 @@ var apiCode2desc = map[string]string{
 	AccessReject:     "access rejected",
 	Forbidden:        "forbidden",
 	UnAuthErr:        "unauthorized",
+	NoPermission:     "no permission",
 	RpcCallErr:       "inner call error",
 	RpcRespErr:       "inner resp error",
 	VerifyErr:        "verify error",

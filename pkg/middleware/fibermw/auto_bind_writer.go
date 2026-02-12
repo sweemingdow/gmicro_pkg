@@ -35,3 +35,29 @@ func BindAndWrite[T, R any](handler FiberBizHandler[T, R]) fiber.Handler {
 		return err
 	}
 }
+
+func CustomAndWrite[R any](handler FiberBizHandler[*fiber.Ctx, R]) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		resp, err := handler(c)
+
+		if err == nil {
+			return c.JSON(apiresp.Ok(resp))
+		}
+
+		// give to fiber server error handler to process
+		return err
+	}
+}
+
+func QueryAndWrite[R any](handler FiberBizHandler[map[string]string, R]) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		resp, err := handler(c.Queries())
+
+		if err == nil {
+			return c.JSON(apiresp.Ok(resp))
+		}
+
+		// give to fiber server error handler to process
+		return err
+	}
+}
