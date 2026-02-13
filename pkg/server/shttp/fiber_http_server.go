@@ -105,7 +105,7 @@ func (fhs *FiberHttpServer) handleError(c *fiber.Ctx, err error) error {
 
 	if e, ok := myerr.AsSubCodeError(err); ok {
 		fhs.dl.Info().Stack().Err(e).Msg("expected subCodeError")
-		return c.JSON(apiresp.GenSubResp[any](e.SubCode(), e.ErrMsg()))
+		return c.JSON(apiresp.GenSubResp(e.SubCode(), e.ErrMsg()))
 	}
 
 	if e, ok := myerr.AsRpcCallError(err); ok {
